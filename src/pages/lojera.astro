@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { atlasCountries } from '../data/atlas';
+import { atlasQuizzes } from '../data/quizzes';
+const questionCount = atlasQuizzes.reduce((sum, quiz) => sum + quiz.questions.length, 0);
+---
+<BaseLayout title="Lojëra · Atlas · Illyrian Brains" description="Lojëra dhe kuize për të mësuar vendet e Atlas-it.">
+  <Header />
+  <main class="games-page">
+    <section class="games-hero"><div class="container games-hero-inner">
+      <div><h1>Një botë për t’u<br /><span>zbuluar me lojë.</span></h1><p class="games-lead">Nga flamujt te hapat e parë në një vend të ri. Testo kujtesën, mëso diçka të dobishme dhe provo përsëri.</p></div>
+      <div class="games-stats" aria-label="Statistikat e lojërave"><div><strong>3</strong><span>mënyra loje</span></div><div><strong>{atlasQuizzes.length}</strong><span>destinacione</span></div><div><strong>{questionCount}</strong><span>pyetje</span></div></div>
+    </div></section>
+    <section class="section tone-white"><div class="container">
+      <div class="games-section-head"><div><p class="eyebrow">Lojëra të shpejta</p><h2>Zgjidh sfidën tënde</h2></div><p>Pak minuta mjaftojnë. Rezultati ruhet gjatë lojës dhe çdo raund është ndryshe.</p></div>
+      <div class="featured-games">
+        <a class="game-feature game-feature-primary" href="/lojera/flamujt/"><span class="game-number">01</span><span class="game-art" aria-hidden="true">🇦🇱 <i>→</i> 🇪🇺</span><span class="game-copy"><small>Kujtesë · 10 raunde</small><strong>Gjeje flamurin</strong><span>Përputh vendin me flamurin e duhur.</span><b>Fillo lojën →</b></span></a>
+        <a class="game-feature" href="/lojera/sfida/"><span class="game-number">02</span><span class="game-art" aria-hidden="true">⏱️</span><span class="game-copy"><small>Shpejtësi · 60 sekonda</small><strong>Sfida e Atlasit</strong><span>Saktë apo gabim? Vendos para se të mbarojë koha.</span><b>Fillo sfidën →</b></span></a>
+      </div>
+    </div></section>
+    <section class="section games-countries"><div class="container">
+      <div class="games-section-head"><div><p class="eyebrow">Kuize sipas vendit</p><h2>Sa mirë e njeh destinacionin?</h2></div><p>Pyetje praktike nga udhëzuesit Atlas, me shpjegim pas çdo përgjigjeje.</p></div>
+      <div class="country-game-grid">
+        {atlasCountries.map((country, index) => { const quiz = atlasQuizzes.find((q) => q.slug === country.slug); return quiz ? (
+          <a class="country-game-card" href={`/lojera/${country.slug}/`}><span class="country-game-index">{String(index + 1).padStart(2, '0')}</span><span class="country-game-flag" aria-hidden="true">{country.flag}</span><span class="country-game-copy"><strong>{country.title}</strong><small>{quiz.questions.length} pyetje · pa limit kohe</small></span><span class="country-game-arrow" aria-hidden="true">↗</span></a>
+        ) : null; })}
+      </div>
+    </div></section>
+  </main><Footer />
+</BaseLayout>
+<style>
+  .games-hero{padding:clamp(72px,10vw,128px) 0;background:var(--night);color:#fff;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:16px 16px}.games-hero-inner{display:grid;grid-template-columns:1.35fr .65fr;gap:70px;align-items:end}.games-hero h1{margin:0;font-size:clamp(48px,7vw,88px);font-weight:300;line-height:.95;letter-spacing:-.055em}.games-hero h1 span{color:#c9aebd}.games-lead{max-width:650px;margin:28px 0 0;color:rgba(255,255,255,.65);font-size:18px}.games-stats{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid rgba(255,255,255,.15)}.games-stats div{padding:20px 10px}.games-stats strong,.games-stats span{display:block}.games-stats strong{font-family:var(--font-display);font-size:38px;font-weight:400}.games-stats span{color:rgba(255,255,255,.5);font-size:9px;text-transform:uppercase;letter-spacing:.1em}.games-section-head{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:34px}.games-section-head h2{margin:0;font-size:clamp(32px,4vw,50px);font-weight:400;line-height:1}.games-section-head>p{max-width:430px;margin:0;color:var(--muted)}.featured-games{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}.game-feature{min-height:330px;display:flex;flex-direction:column;padding:28px;border:1px solid var(--line);border-radius:18px;background:#f5f3f4;transition:transform .2s ease,box-shadow .2s ease}.game-feature:hover{transform:translateY(-4px);box-shadow:0 18px 45px rgba(23,24,29,.1)}.game-feature-primary{color:#fff;background:var(--accent);border-color:var(--accent)}.game-number{font-size:11px;letter-spacing:.12em;opacity:.6}.game-art{flex:1;display:flex;align-items:center;justify-content:center;font-size:clamp(44px,6vw,72px)}.game-art i{margin:0 14px;font-size:22px;font-style:normal;opacity:.5}.game-copy>*{display:block}.game-copy small{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.65}.game-copy strong{margin-top:6px;font-family:var(--font-display);font-size:30px;font-weight:500}.game-copy span{margin-top:5px;font-size:13px;opacity:.7}.game-copy b{margin-top:20px;font-size:13px}.games-countries{background:#f3f1f2}.country-game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.country-game-card{display:grid;grid-template-columns:34px 50px 1fr auto;align-items:center;gap:14px;padding:19px 20px;border:1px solid rgba(116,71,97,.14);border-radius:12px;background:rgba(255,255,255,.8);transition:.2s ease}.country-game-card:hover{border-color:var(--accent);transform:translateX(3px)}.country-game-index{color:var(--muted);font-size:10px}.country-game-flag{font-size:30px}.country-game-copy strong,.country-game-copy small{display:block}.country-game-copy strong{font-size:15px}.country-game-copy small{margin-top:3px;color:var(--muted);font-size:11px}.country-game-arrow{color:var(--accent);font-size:18px}
+  @media(max-width:800px){.games-hero-inner{grid-template-columns:1fr}.games-stats{max-width:440px}.featured-games,.country-game-grid{grid-template-columns:1fr}.games-section-head{display:block}.games-section-head>p{margin-top:14px}.game-feature{min-height:290px}}@media(max-width:480px){.games-stats div{padding-inline:4px}.games-stats strong{font-size:30px}.country-game-card{grid-template-columns:28px 38px 1fr auto;padding:15px 13px;gap:10px}.country-game-flag{font-size:24px}}
+</style>

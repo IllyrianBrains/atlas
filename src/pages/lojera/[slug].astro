@@ -1,0 +1,214 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { atlasCountries } from '../../data/atlas';
+import { atlasQuizzes } from '../../data/quizzes';
+
+export function getStaticPaths() {
+  return atlasQuizzes.map((quiz) => {
+    const country = atlasCountries.find((c) => c.slug === quiz.slug)!;
+    return { params: { slug: quiz.slug }, props: { country, quiz } };
+  });
+}
+
+const { country, quiz } = Astro.props;
+---
+<BaseLayout title={`Kuiz: ${country.title} · Atlas · Illyrian Brains`} description={`Testo njohuritë e tua për integrimin në ${country.title} me pyetje nga guida Atlas.`}>
+  <Header />
+  <main>
+    <section class="quiz-hero tone-dark">
+      <div class="container city-page quiz-hero-inner">
+        <p class="eyebrow">Atlas · Lojëra</p>
+        <h1>{country.flag} Kuiz: {country.title}</h1>
+        <p class="about-body">{quiz.questions.length} pyetje nga udhëzuesi i {country.title}. Përgjigju dhe shiko shpjegimin pas çdo pyetjeje.</p>
+        <div class="quiz-hero-meta"><span>Pa limit kohe</span><span>Shpjegime të menjëhershme</span></div>
+      </div>
+    </section>
+
+    <section class="section quiz-stage">
+      <div class="container">
+        <div class="quiz" id="quiz" data-questions={JSON.stringify(quiz.questions)}>
+          <div class="quiz-live-score"><span><small>Pikë</small><strong id="quiz-live-score">0</strong></span><span><small>Seri</small><strong><span id="quiz-streak">0</span> 🔥</strong></span></div>
+          <div class="quiz-head" id="quiz-head">
+            <span class="quiz-progress-label">Pyetja <span id="quiz-current">1</span> nga <span id="quiz-total">{quiz.questions.length}</span></span>
+            <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+          </div>
+          <div class="quiz-body" id="quiz-body">
+            <p class="quiz-prompt">Zgjidh një përgjigje</p>
+            <h2 class="quiz-question" id="quiz-question"></h2>
+            <div class="quiz-options" id="quiz-options"></div>
+            <p class="quiz-explanation" id="quiz-explanation" hidden></p>
+          </div>
+          <div class="quiz-actions">
+            <button class="quiz-next button" id="quiz-next" type="button" hidden>Vazhdo</button>
+          </div>
+          <div class="quiz-result" id="quiz-result" hidden>
+            <div class="quiz-result-mark" aria-hidden="true">🏁</div>
+            <p class="quiz-result-label">Rezultati yt</p>
+            <p class="quiz-score" id="quiz-score"></p>
+            <p class="quiz-score-message" id="quiz-score-message"></p>
+            <div class="quiz-result-actions">
+              <button class="button quiz-retry" id="quiz-retry" type="button">Provo përsëri</button>
+              <a class="quiz-guide-link" href={`/${country.slug}/`}>Shiko udhëzuesin e plotë →</a>
+            </div>
+          </div>
+        </div>
+        <p class="quiz-back"><a href="/lojera/">← Të gjitha lojërat</a></p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .quiz { max-width: 640px; margin: 0 auto; }
+  .quiz-hero{padding:clamp(60px,8vw,92px) 0}.quiz-hero-inner{position:relative}.quiz-hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:25px}.quiz-hero-meta span{padding:7px 11px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:rgba(255,255,255,.65);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.quiz-live-score{display:flex;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px}.quiz-live-score strong{color:var(--ink);font-size:16px}
+  .quiz-head { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+  .quiz-progress-label { font-size: 13px; color: var(--muted); }
+  .quiz-progress-track { height: 6px; border-radius: 999px; background: var(--soft); overflow: hidden; }
+  .quiz-progress-fill { height: 100%; background: var(--accent); border-radius: inherit; transition: width .25s ease; }
+  .quiz-question { margin: 0 0 20px; font-size: clamp(20px, 3vw, 26px); line-height: 1.4; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: grid;grid-template-columns:30px 1fr;align-items:center;gap:10px; width: 100%; text-align: left; padding: 14px 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; transition: border-color .15s ease, background .15s ease,transform .15s ease; }
+  .quiz-option::before{content:attr(data-key);display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--line);border-radius:50%;color:var(--muted);font-size:11px;font-weight:800}.quiz-option:hover:not(:disabled){transform:translateX(3px)}
+  .quiz-option:hover:not(:disabled) { border-color: var(--accent); }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-option.correct { border-color: #2f7a4f; background: rgba(47,122,79,.08); font-weight: 700; }
+  .quiz-option.incorrect { border-color: #a3372f; background: rgba(163,55,47,.08); }
+  .quiz-explanation { margin-top: 18px; padding: 14px 16px; border-radius: 8px; background: var(--soft); font-size: 15px; line-height: 1.6; color: var(--muted); }
+  .quiz-actions { margin-top: 24px; }
+  .quiz-result { text-align: center; padding: 32px 0; }
+  .quiz-score { margin: 0; font-size: clamp(36px, 6vw, 52px); font-family: var(--font-display); }
+  .quiz-score-message { margin: 12px 0 28px; color: var(--muted); font-size: 16px; }
+  .quiz-result-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; }
+  .quiz-guide-link { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+  .quiz-back { max-width: 640px; margin: 32px auto 0; }
+  /* Polished game surface */
+  .quiz-stage{background-color:#f1edef;background-image:linear-gradient(rgba(116,71,97,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(116,71,97,.028) 1px,transparent 1px);background-size:16px 16px}.quiz{max-width:720px;padding:clamp(25px,5vw,48px);border:1px solid rgba(116,71,97,.16);border-radius:22px;background:rgba(255,255,255,.96);box-shadow:0 24px 70px rgba(23,24,29,.08)}.quiz-live-score{justify-content:flex-end;gap:9px;margin-bottom:24px;padding:0;border:0}.quiz-live-score>span{min-width:78px;padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:#faf9fa}.quiz-live-score small,.quiz-live-score strong{display:block}.quiz-live-score small{color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}.quiz-live-score strong{margin-top:1px;font-size:17px}.quiz-head{gap:9px;margin-bottom:34px}.quiz-progress-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.quiz-progress-track{height:8px;background:#ebe7e9}.quiz-prompt{margin:0 0 7px;color:var(--accent);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}.quiz-question{margin-bottom:26px;font-size:clamp(23px,3.2vw,31px);font-weight:500;line-height:1.32;letter-spacing:-.018em}.quiz-options{gap:11px}.quiz-option{grid-template-columns:34px 1fr;gap:12px;min-height:58px;padding:13px 16px;border-color:#d9d5d7;border-radius:12px;font:600 14px/1.45 var(--font-body);box-shadow:0 2px 0 rgba(23,24,29,.025);transition:border-color .15s ease,background .15s ease,transform .15s ease,box-shadow .15s ease}.quiz-option::before{width:30px;height:30px;border-radius:8px;background:#f8f7f7}.quiz-option:hover:not(:disabled){transform:translateX(4px);box-shadow:0 5px 14px rgba(23,24,29,.06)}.quiz-option.correct{border-color:#4f8064;color:#315e44;background:#e9f3ed;box-shadow:inset 4px 0 #4f8064}.quiz-option.correct::before{border-color:#4f8064;color:#fff;background:#4f8064}.quiz-option.incorrect{border-color:#b95159;color:#89343a;background:#fbecee;box-shadow:inset 4px 0 #b95159}.quiz-option.incorrect::before{border-color:#b95159;color:#fff;background:#b95159}.quiz-explanation{margin-top:20px;padding:17px 18px;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;color:#4e4850;background:#f4eff2;font-size:14px;line-height:1.65}.quiz-actions{display:flex;justify-content:flex-end}.quiz-next{min-width:145px;color:#fff;background:var(--accent)}.quiz-result{padding:25px 0 12px}.quiz-result-mark{display:grid;place-items:center;width:86px;height:86px;margin:0 auto 20px;border-radius:50%;background:#f1e8ed;font-size:44px}.quiz-result-label{margin:0;color:var(--accent);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}.quiz-score-message{max-width:450px;margin-inline:auto}.quiz-retry{color:#fff;background:var(--accent)}.quiz-back{max-width:720px;margin-top:28px;color:var(--muted);font-size:13px;font-weight:700}
+  @media(max-width:600px){.quiz-stage{padding-block:28px 58px}.quiz{padding:22px 16px;border-radius:16px}.quiz-hero{padding-block:46px}.quiz-hero h1{font-size:36px;line-height:1.08}.quiz-live-score{margin-bottom:20px}.quiz-live-score>span{min-width:70px;padding:7px 10px}.quiz-question{font-size:22px}.quiz-option{padding:11px 12px}.quiz-actions{display:block}.quiz-next{width:100%;min-height:48px}.quiz-result-actions{flex-direction:column}.quiz-guide-link{padding:10px}.quiz-back{padding-inline:3px}}
+</style>
+
+<script>
+  interface QuizQuestion {
+    question: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+  }
+
+  const quizEl = document.getElementById('quiz') as HTMLElement;
+  const questions: QuizQuestion[] = JSON.parse(quizEl.dataset.questions ?? '[]');
+
+  const headEl = document.getElementById('quiz-head') as HTMLElement;
+  const bodyEl = document.getElementById('quiz-body') as HTMLElement;
+  const questionEl = document.getElementById('quiz-question') as HTMLElement;
+  const optionsEl = document.getElementById('quiz-options') as HTMLElement;
+  const explanationEl = document.getElementById('quiz-explanation') as HTMLElement;
+  const nextBtn = document.getElementById('quiz-next') as HTMLButtonElement;
+  const currentLabel = document.getElementById('quiz-current') as HTMLElement;
+  const progressFill = document.getElementById('quiz-progress-fill') as HTMLElement;
+  const resultEl = document.getElementById('quiz-result') as HTMLElement;
+  const scoreEl = document.getElementById('quiz-score') as HTMLElement;
+  const scoreMessageEl = document.getElementById('quiz-score-message') as HTMLElement;
+  const retryBtn = document.getElementById('quiz-retry') as HTMLButtonElement;
+  const liveScoreEl = document.getElementById('quiz-live-score') as HTMLElement;
+  const streakEl = document.getElementById('quiz-streak') as HTMLElement;
+
+  let current = 0;
+  let score = 0;
+  let answered = false;
+  let streak = 0;
+
+  function renderQuestion() {
+    answered = false;
+    const q = questions[current];
+    currentLabel.textContent = String(current + 1);
+    progressFill.style.width = `${(current / questions.length) * 100}%`;
+    questionEl.textContent = q.question;
+    optionsEl.innerHTML = '';
+    explanationEl.hidden = true;
+    explanationEl.textContent = '';
+    nextBtn.hidden = true;
+
+    q.options.forEach((option, index) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'quiz-option';
+      btn.dataset.key = String.fromCharCode(65 + index);
+      btn.textContent = option;
+      btn.addEventListener('click', () => selectOption(index));
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function selectOption(index: number) {
+    if (answered) return;
+    answered = true;
+    const q = questions[current];
+    const buttons = optionsEl.querySelectorAll<HTMLButtonElement>('.quiz-option');
+    buttons.forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.correctIndex) {
+        b.classList.add('correct');
+        b.textContent = `${b.textContent} ✓`;
+      } else if (i === index) {
+        b.classList.add('incorrect');
+        b.textContent = `${b.textContent} ✗`;
+      }
+    });
+    if (index === q.correctIndex) { score++; streak++; } else { streak = 0; }
+    liveScoreEl.textContent = String(score);
+    streakEl.textContent = String(streak);
+    explanationEl.textContent = q.explanation;
+    explanationEl.hidden = false;
+    nextBtn.hidden = false;
+    nextBtn.textContent = current === questions.length - 1 ? 'Shiko rezultatin' : 'Vazhdo';
+  }
+
+  nextBtn.addEventListener('click', () => {
+    current++;
+    if (current >= questions.length) {
+      showResult();
+    } else {
+      renderQuestion();
+    }
+  });
+
+  function showResult() {
+    headEl.hidden = true;
+    bodyEl.hidden = true;
+    nextBtn.hidden = true;
+    resultEl.hidden = false;
+    scoreEl.textContent = `${score} / ${questions.length}`;
+    const ratio = score / questions.length;
+    scoreMessageEl.textContent =
+      ratio === 1
+        ? 'E përsosur! I njeh shumë mirë hollësitë.'
+        : ratio >= 0.5
+          ? 'Mirë! Ke bazat, por ia vlen të rihedhësh një sy udhëzuesit.'
+          : 'Fillim i mirë — shiko udhëzuesin e plotë për më shumë detaje.';
+  }
+
+  retryBtn.addEventListener('click', () => {
+    current = 0;
+    score = 0;
+    streak = 0;
+    liveScoreEl.textContent = '0';
+    streakEl.textContent = '0';
+    resultEl.hidden = true;
+    headEl.hidden = false;
+    bodyEl.hidden = false;
+    renderQuestion();
+  });
+
+  renderQuestion();
+  document.addEventListener('keydown', (event) => {
+    if (!resultEl.hidden && event.key === 'Enter') retryBtn.click();
+    if (!nextBtn.hidden && event.key === 'Enter') nextBtn.click();
+    if (!answered && /^[1-4a-d]$/i.test(event.key)) {
+      const index = /[a-d]/i.test(event.key) ? event.key.toLowerCase().charCodeAt(0) - 97 : Number(event.key) - 1;
+      optionsEl.querySelectorAll<HTMLButtonElement>('.quiz-option')[index]?.click();
+    }
+  });
+</script>

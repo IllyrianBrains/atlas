@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+const statements = [
+  { text:'Zvicra ka katër gjuhë zyrtare.', answer:true, note:'Gjermanisht, frëngjisht, italisht dhe retroromançe.' },
+  { text:'Orari standard i punës në Francë është 40 orë në javë.', answer:false, note:'Orari standard është 35 orë në javë.' },
+  { text:'Finlanda ka mbi 188.000 liqene.', answer:true, note:'Prej këtu vjen edhe nofka “Toka e një mijë liqeneve”.' },
+  { text:'Fika është një formular tatimor suedez.', answer:false, note:'Fika është pushimi social me kafe dhe diçka të ëmbël.' },
+  { text:'Në Austri, punonjësit marrin zakonisht 14 paga në vit.', answer:true, note:'Dy pagat shtesë lidhen zakonisht me pushimet dhe fundvitin.' },
+  { text:'Patenta shqiptare vlen pa afat pasi vendosesh në Gjermani.', answer:false, note:'Duhet konvertuar brenda 6 muajve nga vendosja.' },
+  { text:'Malteze dhe anglishtja janë gjuhë zyrtare të Maltës.', answer:true, note:'Të dyja përdoren zyrtarisht në Maltë.' },
+  { text:'SBB administron trenat kombëtarë në Zvicër.', answer:true, note:'SBB është operatori hekurudhor kombëtar zviceran.' },
+  { text:'Në Francë numri i urgjencës së policisë është 18.', answer:false, note:'Policia është 17; 18 është numri i zjarrfikësve.' },
+  { text:'Migri përpunon lejet e qëndrimit në Finlandë.', answer:true, note:'Migri është Shërbimi Finlandez i Imigracionit.' },
+  { text:'Anmeldung është regjistrimi i banimit në Gjermani.', answer:true, note:'Është një nga hapat e parë pas vendosjes.' },
+  { text:'Skatteverket jep lejet e qëndrimit në Suedi.', answer:false, note:'Lejet i jep Migrationsverket; Skatteverket merret me regjistrimin.' },
+];
+---
+<BaseLayout title="Sfida e Atlasit · Lojëra Atlas" description="Përgjigju saktë ose gabim para se të mbarojë koha.">
+  <Header /><main><section class="speed-shell"><div class="container"><a class="back" href="/lojera/">← Të gjitha lojërat</a>
+    <div class="speed-card" id="speed-game" data-items={JSON.stringify(statements)}>
+      <header><div><p class="eyebrow">Shpejtësi · 60 sekonda</p><h1>Sfida e Atlasit</h1></div><div class="timer" id="timer">60</div></header>
+      <div class="timer-track"><span id="timer-fill"></span></div><div class="speed-meta"><span>Pikë <b id="score">0</b></span><span>Pyetja <b id="count">1</b></span></div>
+      <div id="arena"><p class="statement" id="statement"></p><div class="answer-row"><button data-answer="true">✓ Saktë</button><button data-answer="false">× Gabim</button></div><p class="note" id="note" aria-live="polite"></p></div>
+      <div class="result" id="result" hidden><span>⏱️</span><h2 id="final-score"></h2><p id="final-copy"></p><button id="again">Provo përsëri</button></div>
+    </div>
+  </div></section></main><Footer />
+</BaseLayout>
+<style>
+  .speed-shell{min-height:720px;padding:48px 0 96px;color:#fff;background:var(--night);background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:16px 16px}.back{display:inline-block;margin-bottom:24px;color:rgba(255,255,255,.58);font-size:13px;font-weight:700}.speed-card{max-width:800px;margin:auto;padding:clamp(24px,5vw,52px);border:1px solid rgba(255,255,255,.13);border-radius:24px;background:rgba(255,255,255,.045)}header{display:flex;align-items:start;justify-content:space-between;gap:20px}h1{margin:0;font-size:clamp(38px,6vw,60px);font-weight:300;line-height:1}.timer{display:grid;place-items:center;width:68px;height:68px;flex:0 0 auto;border:1px solid rgba(255,255,255,.25);border-radius:50%;font-family:var(--font-display);font-size:28px}.timer-track{height:5px;margin-top:34px;overflow:hidden;border-radius:8px;background:rgba(255,255,255,.1)}.timer-track span{display:block;width:100%;height:100%;background:#c9aebd;transition:width 1s linear}.speed-meta{display:flex;justify-content:space-between;margin-top:12px;color:rgba(255,255,255,.55);font-size:12px}.statement{min-height:140px;display:grid;place-items:center;margin:38px 0 26px;text-align:center;font-family:var(--font-display);font-size:clamp(25px,4vw,37px);line-height:1.25}.answer-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.answer-row button,.result button{padding:17px;border:1px solid rgba(255,255,255,.25);border-radius:999px;color:#fff;background:rgba(255,255,255,.07);font:700 15px var(--font-body);cursor:pointer;transition:.18s ease}.answer-row button:hover{border-color:#fff;background:rgba(255,255,255,.13)}.answer-row button:disabled{opacity:.55}.note{min-height:42px;margin:18px auto 0;max-width:560px;text-align:center;color:#c9aebd;font-size:13px}.result{text-align:center;padding:45px 0}.result>span{font-size:64px}.result h2{margin:12px 0 8px;font-size:44px}.result p{color:rgba(255,255,255,.6)}.result button{margin-top:16px;padding-inline:24px;background:var(--accent);border-color:var(--accent)}@media(max-width:520px){.answer-row{grid-template-columns:1fr}.statement{min-height:160px}.speed-card{border-radius:16px}}
+</style>
+<script>
+  interface Statement { text:string; answer:boolean; note:string }
+  const root=document.querySelector<HTMLElement>('#speed-game')!,items:Statement[]=JSON.parse(root.dataset.items||'[]');const statement=document.querySelector<HTMLElement>('#statement')!,note=document.querySelector<HTMLElement>('#note')!,scoreEl=document.querySelector<HTMLElement>('#score')!,countEl=document.querySelector<HTMLElement>('#count')!,timerEl=document.querySelector<HTMLElement>('#timer')!,fill=document.querySelector<HTMLElement>('#timer-fill')!,arena=document.querySelector<HTMLElement>('#arena')!,result=document.querySelector<HTMLElement>('#result')!,buttons=[...document.querySelectorAll<HTMLButtonElement>('[data-answer]')];let order:Statement[]=[],index=0,score=0,time=60,tick=0,locked=false;
+  function start(){order=[...items].sort(()=>Math.random()-.5);index=score=0;time=60;locked=false;arena.hidden=false;result.hidden=true;scoreEl.textContent='0';timerEl.textContent='60';fill.style.width='100%';show();clearInterval(tick);tick=window.setInterval(()=>{time--;timerEl.textContent=String(time);fill.style.width=`${time/60*100}%`;if(time<=0)finish()},1000)}
+  function show(){locked=false;buttons.forEach(b=>b.disabled=false);const q=order[index%order.length];statement.textContent=q.text;countEl.textContent=String(index+1);note.textContent=''}
+  function answer(value:boolean){if(locked)return;locked=true;buttons.forEach(b=>b.disabled=true);const q=order[index%order.length];if(value===q.answer){score++;scoreEl.textContent=String(score);note.textContent=`Saktë — ${q.note}`}else{time=Math.max(0,time-3);timerEl.textContent=String(time);note.textContent=`Jo — ${q.note}`}setTimeout(()=>{index++;if(time>0)show()},850)}
+  function finish(){clearInterval(tick);arena.hidden=true;result.hidden=false;document.querySelector<HTMLElement>('#final-score')!.textContent=`${score} përgjigje të sakta`;document.querySelector<HTMLElement>('#final-copy')!.textContent=score>=12?'Rezultat fantastik — e zotërove sfidën!':score>=7?'Shumë mirë. Tani provo ta mundësh rezultatin.':'Ngrohu edhe me një raund; çdo përgjigje të mëson diçka.'}
+  buttons.forEach(b=>b.onclick=()=>answer(b.dataset.answer==='true'));document.querySelector<HTMLButtonElement>('#again')!.onclick=start;start();
+</script>

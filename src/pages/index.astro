@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { atlasCountries } from '../data/atlas';
+
+const featured = [
+  { ...atlasCountries.find((c) => c.slug === 'gjermani')!, image: '/assets/atlas/gjermani/9b6b14586347fc070e33586566e14f81dae728df.jpeg', label: 'Punë · Dokumente · Jetë' },
+  { ...atlasCountries.find((c) => c.slug === 'zvicer')!, image: '/assets/atlas/zvicer/b73ba430a8266e02be1fbbc26d9126527b8df4d1.jpeg', label: 'Leje · Sigurim · Transport' },
+  { ...atlasCountries.find((c) => c.slug === 'france')!, image: '/assets/atlas/france/e5dd58d6c0baf912d38c7028751693fa5675302a.jpeg', label: 'Punë · Banesë · Kulturë' },
+];
+---
+<BaseLayout title="Atlas · Udhëzues për shqiptarët jashtë vendit" description="Udhëzues praktikë, të ndërtuar nga komuniteti shqiptar, për jetën dhe integrimin në vende të ndryshme.">
+  <Header />
+  <main class="home-page">
+    <section class="atlas-hero">
+      <div class="container atlas-hero-grid">
+        <div class="atlas-hero-copy">
+          <h1>Fillimi në një vend të ri, <span>pak më i lehtë.</span></h1>
+          <p>Informacion praktik për dokumentet, punën, banesën dhe jetën e përditshme — mbledhur nga njerëz që e kanë kaluar vetë këtë rrugë.</p>
+          <div class="hero-actions">
+            <a class="button hero-primary" href="#vendet">Gjej vendin tënd ↓</a>
+            <a class="button hero-secondary" href="/rreth/">Si funksionon Atlas?</a>
+          </div>
+          <p class="trust-note"><span aria-hidden="true">✓</span> Falas, pa regjistrim, i hapur për të gjithë</p>
+        </div>
+        <aside class="hero-finder" aria-label="Gjej një udhëzues" data-country-index={JSON.stringify(atlasCountries.map(({ title, slug }) => ({ title, slug })))}>
+          <p>Ku po shkon?</p>
+          <label class="finder-field" for="hero-country-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg><input id="hero-country-search" type="search" placeholder="Kërko p.sh. Gjermani" autocomplete="off" /></label>
+          <div class="quick-links">
+            {atlasCountries.slice(0, 6).map((country) => <a href={`/${country.slug}/`} data-country-link data-name={country.title.toLowerCase()}><span>{country.flag}</span>{country.title}</a>)}
+          </div>
+          <a class="finder-all" href="#vendet">Shiko të gjitha destinacionet <span>→</span></a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="home-strip" aria-label="Çfarë përmban Atlas">
+      <div class="container home-strip-inner"><span>Dokumentet</span><i>◆</i><span>Puna</span><i>◆</i><span>Banesa</span><i>◆</i><span>Shëndetësia</span><i>◆</i><span>Jeta e përditshme</span></div>
+    </section>
+
+    <section class="section featured-section">
+      <div class="container">
+        <div class="home-heading"><div><p class="eyebrow">Më të kërkuarat</p><h2>Fillo me një destinacion</h2></div><p>Udhëzues të qartë për pyetjet që dalin në javët dhe muajt e parë.</p></div>
+        <div class="featured-grid">
+          {featured.map((country) => <a class="featured-card" href={`/${country.slug}/`}><img src={country.image} alt="" loading="lazy" /><span class="featured-shade"></span><span class="featured-content"><small>{country.label}</small><strong><i>{country.flag}</i> {country.title}</strong><span>Hap udhëzuesin →</span></span></a>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="section destinations" id="vendet">
+      <div class="container">
+        <div class="home-heading"><div><p class="eyebrow">Të gjitha guidat</p><h2>Gjej vendin tënd</h2></div><p>Zgjidh një shtet ose qytet për të parë udhëzuesin praktik.</p></div>
+        <div class="directory-tools">
+          <label class="directory-search" for="country-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg><input id="country-search" type="search" placeholder="Kërko destinacionin…" autocomplete="off" /></label>
+          <div class="directory-filters" role="group" aria-label="Filtro destinacionet"><button class="is-active" type="button" data-filter="all">Të gjitha</button><button type="button" data-filter="country">Shtete</button><button type="button" data-filter="city">Qytete</button></div>
+        </div>
+        <div class="destination-grid" id="destination-grid">
+          {atlasCountries.map((country, index) => <a class="destination-card" href={`/${country.slug}/`} data-destination data-name={country.title.toLowerCase()} data-kind={country.kind ?? 'country'}><span class="destination-index">{String(index + 1).padStart(2, '0')}</span><span class="destination-flag">{country.flag}</span><span><strong>{country.title}</strong><small>{country.kind === 'city' ? 'Guidë qyteti' : 'Guidë vendi'}</small></span><b>→</b></a>)}
+        </div>
+        <p class="no-results" id="no-results" hidden>Nuk e gjetëm këtë destinacion. <a href="mailto:illyrianbrains@gmail.com">Na sugjero një guidë →</a></p>
+      </div>
+    </section>
+
+    <section class="section home-how"><div class="container how-grid">
+      <div><p class="eyebrow">E thjeshtë dhe praktike</p><h2>Çfarë gjen në çdo guidë?</h2><p class="how-intro">Jo teori të gjata. Vetëm informacion që të ndihmon të orientohesh dhe lidhje për të vazhduar kërkimin.</p><a href="/rreth/">Mëso më shumë për Atlas →</a></div>
+      <div class="how-list"><article><span>01</span><div><strong>Hapat e parë</strong><p>Regjistrimi, dokumentet dhe gjërat që duhen bërë menjëherë.</p></div></article><article><span>02</span><div><strong>Jeta e përditshme</strong><p>Banesa, puna, transporti, shëndetësia dhe zakonet lokale.</p></div></article><article><span>03</span><div><strong>Përvoja e komunitetit</strong><p>Këshilla nga shqiptarë që jetojnë dhe punojnë atje.</p></div></article></div>
+    </div></section>
+
+    <section class="section game-callout"><div class="container game-callout-inner"><div><p class="eyebrow">Mëso duke luajtur</p><h2>Gati për një sfidë të shpejtë?</h2><p>Provo flamujt, garo me kohën ose testo sa mirë e njeh një vend.</p><a class="button game-button" href="/lojera/">Shko te lojërat →</a></div><div class="game-preview" aria-hidden="true"><span>🇨🇭</span><span>🇫🇮</span><span>🇦🇹</span><strong>?</strong></div></div></section>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .atlas-hero{padding:clamp(72px,10vw,130px) 0;color:#fff;background-color:var(--night);background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:16px 16px}.atlas-hero-grid{display:grid;grid-template-columns:1.15fr .65fr;align-items:center;gap:clamp(50px,8vw,110px)}.atlas-hero h1{max-width:760px;margin:0;font-size:clamp(50px,7vw,88px);font-weight:300;line-height:.94;letter-spacing:-.055em}.atlas-hero h1 span{color:#c9aebd}.atlas-hero-copy>p:not(.eyebrow,.trust-note){max-width:650px;margin:28px 0 0;color:rgba(255,255,255,.66);font-size:18px}.hero-actions{margin-top:34px}.hero-primary{color:var(--ink);background:#fff}.hero-secondary{border:1px solid rgba(255,255,255,.35);color:#fff;background:transparent}.trust-note{display:flex;align-items:center;gap:8px;margin:20px 0 0;color:rgba(255,255,255,.45);font-size:11px}.trust-note span{color:#c9aebd}.hero-finder{padding:28px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(255,255,255,.06);box-shadow:0 30px 70px rgba(0,0,0,.18)}.hero-finder>p{margin:0 0 14px;font-size:13px;font-weight:700}.finder-field,.directory-search{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:center;padding:13px 14px;border-radius:9px;background:#fff}.finder-field svg,.directory-search svg{width:19px;fill:none;stroke:var(--accent);stroke-width:1.8}.finder-field input,.directory-search input{min-width:0;border:0;outline:0;background:transparent;font:14px var(--font-body)}.quick-links{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}.quick-links a{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:7px;color:rgba(255,255,255,.78);font-size:11px;transition:.15s ease}.quick-links a:hover{background:rgba(255,255,255,.09)}.quick-links a[hidden]{display:none}.quick-links span{font-size:17px}.finder-all{display:flex;justify-content:space-between;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:12px;font-weight:700}.home-strip{overflow:hidden;border-bottom:1px solid var(--line);background:#fff}.home-strip-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:18px;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}.home-strip i{color:var(--accent);font-size:6px}.home-heading{display:flex;align-items:end;justify-content:space-between;gap:40px;margin-bottom:34px}.home-heading h2{margin:0;font-size:clamp(35px,5vw,56px);font-weight:400;line-height:1}.home-heading>p{max-width:430px;margin:0;color:var(--muted)}.featured-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px}.featured-card{position:relative;min-height:390px;overflow:hidden;border-radius:16px;color:#fff}.featured-card img,.featured-shade{position:absolute;inset:0;width:100%;height:100%}.featured-card img{object-fit:cover;filter:saturate(.75);transition:transform .45s ease,filter .3s}.featured-shade{background:linear-gradient(transparent 25%,rgba(15,15,18,.88))}.featured-card:hover img{transform:scale(1.035);filter:saturate(1)}.featured-content{position:absolute;inset:auto 24px 24px}.featured-content>*{display:block}.featured-content small{color:rgba(255,255,255,.62);font-size:9px;text-transform:uppercase;letter-spacing:.1em}.featured-content strong{margin-top:7px;font-family:var(--font-display);font-size:28px;font-weight:500}.featured-content strong i{font-style:normal}.featured-content>span{margin-top:16px;font-size:12px;font-weight:700}.destinations{background:#f3f1f2;scroll-margin-top:80px}.directory-tools{display:flex;justify-content:space-between;gap:18px;margin-bottom:24px}.directory-search{width:min(380px,100%);border:1px solid var(--line)}.directory-filters{display:flex;gap:6px}.directory-filters button{padding:9px 15px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:#fff;font:700 11px var(--font-body);cursor:pointer}.directory-filters button.is-active{border-color:var(--ink);color:#fff;background:var(--ink)}.destination-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.destination-card{display:grid;grid-template-columns:32px 48px 1fr auto;gap:14px;align-items:center;padding:19px;border:1px solid rgba(116,71,97,.13);border-radius:11px;background:rgba(255,255,255,.82);transition:.18s ease}.destination-card:hover{border-color:var(--accent);transform:translateX(3px)}.destination-card[hidden]{display:none}.destination-index{color:#999;font-size:9px}.destination-flag{font-size:28px}.destination-card strong,.destination-card small{display:block}.destination-card strong{font-size:15px}.destination-card small{margin-top:2px;color:var(--muted);font-size:10px}.destination-card b{color:var(--accent)}.no-results{padding:35px;text-align:center;color:var(--muted)}.no-results a{color:var(--accent);font-weight:700}.home-how{background:#fff}.how-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(50px,9vw,120px)}.how-grid h2{margin:0;font-size:clamp(38px,5vw,58px);font-weight:400;line-height:1}.how-intro{margin:22px 0;color:var(--muted)}.how-grid>div>a{color:var(--accent);font-size:13px;font-weight:700}.how-list article{display:grid;grid-template-columns:50px 1fr;gap:18px;padding:25px 0;border-top:1px solid var(--line)}.how-list article:last-child{border-bottom:1px solid var(--line)}.how-list article>span{color:var(--accent);font-size:11px}.how-list strong{font-family:var(--font-display);font-size:22px}.how-list p{margin:5px 0 0;color:var(--muted);font-size:13px}.game-callout{overflow:hidden;color:#fff;background:var(--accent)}.game-callout-inner{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:70px}.game-callout .eyebrow{color:#ead6e1}.game-callout h2{max-width:600px;margin:0;font-size:clamp(40px,6vw,68px);font-weight:400;line-height:.95}.game-callout p:not(.eyebrow){color:rgba(255,255,255,.7)}.game-button{margin-top:15px;color:var(--accent-dark);background:#fff}.game-preview{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:12px;transform:rotate(3deg)}.game-preview span,.game-preview strong{display:grid;place-items:center;min-height:130px;border:1px solid rgba(255,255,255,.3);border-radius:14px;background:rgba(255,255,255,.1);font-size:58px}.game-preview strong{color:#ead6e1;font-size:64px}
+  @media(max-width:850px){.atlas-hero-grid,.how-grid,.game-callout-inner{grid-template-columns:1fr}.hero-finder{max-width:600px}.featured-grid{grid-template-columns:1fr 1fr}.featured-card:first-child{grid-column:1/-1}.home-heading{display:block}.home-heading>p{margin-top:14px}.game-preview{max-width:560px}.directory-tools{align-items:flex-start}}@media(max-width:600px){.hero-actions{flex-direction:column;align-items:stretch}.hero-actions .button{width:100%}.home-strip-inner{justify-content:flex-start;overflow:auto}.featured-grid,.destination-grid{grid-template-columns:1fr}.featured-card:first-child{grid-column:auto}.featured-card{min-height:310px}.directory-tools{display:block}.directory-search{width:100%}.directory-filters{margin-top:12px}.destination-card{grid-template-columns:25px 38px 1fr auto;padding:15px 13px;gap:9px}.destination-flag{font-size:24px}.game-preview span,.game-preview strong{min-height:90px;font-size:42px}}
+</style>
+
+<script>
+  const heroSearch = document.querySelector<HTMLInputElement>('#hero-country-search');
+  const quickLinks = [...document.querySelectorAll<HTMLElement>('[data-country-link]')];
+  heroSearch?.addEventListener('input', () => { const q=heroSearch.value.trim().toLowerCase(); quickLinks.forEach(link => link.hidden = !!q && !link.dataset.name?.includes(q)); });
+  const finder=document.querySelector<HTMLElement>('.hero-finder'); const countryIndex:{title:string;slug:string}[]=JSON.parse(finder?.dataset.countryIndex||'[]');
+  heroSearch?.addEventListener('keydown', (event) => { if(event.key==='Enter'){const q=heroSearch.value.trim().toLowerCase();const match=countryIndex.find(country=>country.title.toLowerCase().includes(q));if(match&&q)window.location.href=`/${match.slug}/`;else document.querySelector('#vendet')?.scrollIntoView();} });
+  const search=document.querySelector<HTMLInputElement>('#country-search'); const cards=[...document.querySelectorAll<HTMLElement>('[data-destination]')]; const empty=document.querySelector<HTMLElement>('#no-results')!; const filters=[...document.querySelectorAll<HTMLButtonElement>('[data-filter]')]; let active='all';
+  function update(){const q=search?.value.trim().toLowerCase()||'';let visible=0;cards.forEach(card=>{const show=(!q||card.dataset.name?.includes(q))&&(active==='all'||card.dataset.kind===active);card.hidden=!show;if(show)visible++});empty.hidden=visible>0}
+  search?.addEventListener('input',update);filters.forEach(button=>button.addEventListener('click',()=>{active=button.dataset.filter||'all';filters.forEach(b=>b.classList.toggle('is-active',b===button));update()}));
+</script>

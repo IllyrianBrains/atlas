@@ -1,0 +1,84 @@
+---
+// Adapted from illyrianbrains.org's Header.astro for the atlas.illyrianbrains.org
+// subdomain, then rebuilt around Atlas itself: this site is only Atlas, so the nav
+// only points at Atlas destinations (home, the country list, the about page, and
+// the upcoming games/quizzes section) instead of mirroring the main site's nav.
+import { atlasCountries } from '../data/atlas';
+
+const isHome = Astro.url.pathname === '/';
+const countries = atlasCountries.filter((c) => c.kind !== 'city');
+const cities = atlasCountries.filter((c) => c.kind === 'city');
+---
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Atlas nga Illyrian Brains">
+    <img src="/assets/logo.png" alt="Illyrian Brains network" />
+  </a>
+  <button class="nav-toggle" type="button" aria-label="Hap menynë" aria-expanded="false" aria-controls="site-nav">
+    <span></span><span></span><span></span>
+  </button>
+  <nav class="nav" id="site-nav" aria-label="Navigimi kryesor">
+    <a href="/" aria-current={isHome ? 'page' : undefined}>Ballina</a>
+    <div class="nav-item dropdown">
+      <button class="dropdown-toggle" type="button" aria-expanded="false" aria-controls="vendet-menu">
+        Vendet
+      </button>
+      <ul class="dropdown-menu" id="vendet-menu">
+        {countries.map((country) => (
+          <li><a href={`/${country.slug}/`}>{country.flag} {country.title}</a></li>
+        ))}
+        <li role="separator" class="dropdown-divider"></li>
+        {cities.map((city) => (
+          <li><a href={`/${city.slug}/`}>{city.flag} {city.title}</a></li>
+        ))}
+      </ul>
+    </div>
+    <a href="/lojera/">Lojëra</a>
+    <a href="/rreth/">Rreth Atlas</a>
+  </nav>
+</header>
+
+<style>
+  .dropdown-divider { margin: 6px 4px; border-top: 1px solid rgba(255,255,255,.12); }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+  const nav = document.querySelector<HTMLElement>('.nav');
+  const dropdowns = document.querySelectorAll<HTMLElement>('.nav-item.dropdown');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = nav?.classList.toggle('nav-open') ?? false;
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  nav?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('nav-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  const closeDropdowns = (except?: HTMLElement) => {
+    dropdowns.forEach((dropdown) => {
+      if (dropdown === except) return;
+      dropdown.classList.remove('open');
+      dropdown.querySelector<HTMLButtonElement>('.dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+    });
+  };
+
+  dropdowns.forEach((dropdown) => {
+    const dropdownToggle = dropdown.querySelector<HTMLButtonElement>('.dropdown-toggle');
+    dropdownToggle?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const isOpen = dropdown.classList.toggle('open');
+      dropdownToggle.setAttribute('aria-expanded', String(isOpen));
+      closeDropdowns(dropdown);
+    });
+  });
+
+  document.addEventListener('click', () => closeDropdowns());
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDropdowns();
+  });
+</script>

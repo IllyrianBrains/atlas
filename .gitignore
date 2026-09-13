@@ -1,0 +1,16 @@
+# Illyrian Brains Atlas (Astro)
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+
+# Env / editor / OS noise
+*.env
+.env
+.DS_Store
+.vscode/
+.idea/
+*.log

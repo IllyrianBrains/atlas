@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout title="Rreth Atlas · Illyrian Brains" description="Çfarë është Atlas, kush e ndërton dhe si të kontribuosh me përvojën tënde.">
+  <Header />
+  <main class="about-page">
+    <section class="section tone-dark">
+      <div class="container city-page">
+        <p class="eyebrow">Atlas</p>
+        <h1>Rreth Atlas</h1>
+        <p class="about-body">Atlas është një guidë praktike, vend pas vendi, për shqiptarët që jetojnë ose po shpërngulen jashtë — dokumentat dhe emigrimi, integrimi, jeta e përditshme dhe rrjetëzimi.</p>
+        <p class="about-body">Nuk është shkruar nga ekspertë apo institucione, por nga vetë komuniteti Illyrian Brains: përvoja reale, e ndarë fillimisht në forum dhe e mbledhur këtu që të gjendet më lehtë.</p>
+      </div>
+    </section>
+
+    <section class="section tone-grey">
+      <div class="container city-page">
+        <div class="city-block">
+          <h2>Si ndërtohet</h2>
+          <p class="about-body">Çdo vend në Atlas vjen nga kategoria IB Atlas e forumit tonë, ku anëtarët e komunitetit ndajnë atë çfarë kanë mësuar rrugës — nga hapat e para të vizës, tek gjetja e banesës apo e punës së parë. Përmbajtja pastrohet dhe organizohet në këtë faqe, por burimi mbetet forumi.</p>
+          <p class="about-body">Guida përditësohet herë pas here, jo automatikisht — nëse diçka duket e vjetruar, mungon, apo ke përvojë për një vend të ri, thuaje në forum.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tone-white">
+      <div class="container city-page">
+        <div class="city-block">
+          <h2>Informacione</h2>
+
+          <div class="info-section">
+            <div class="info-section-intro">
+              <h3>Përdorimi</h3>
+              <p>Çfarë është dhe çfarë nuk është Atlas.</p>
+            </div>
+            <div class="info-accordion">
+              <details class="info-item">
+                <summary>A zëvendëson Atlas burimet zyrtare?<span class="info-toggle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+                <div class="info-body">
+                  <p>Jo. Atlas është një pikënisje e bazuar në përvojën e komunitetit, jo këshillë ligjore apo zyrtare. Për çdo vendim që lidhet me viza, leje qëndrimi, taksa apo dokumenta të tjera, kontrollo gjithmonë me ambasadën, zyrat e emigracionit apo institucionet përkatëse të vendit ku ndodhesh.</p>
+                </div>
+              </details>
+              <details class="info-item">
+                <summary>Si kontribuoj me përvojën time?<span class="info-toggle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+                <div class="info-body">
+                  <p>Shto ose përgjigju në kategorinë IB Atlas të forumit: <a href="https://forum.illyrianbrains.org/c/nisma/ib-atlas/144" target="_blank" rel="noreferrer">forum.illyrianbrains.org/c/nisma/ib-atlas</a>. Postimet e reja apo të përditësuara sillen periodikisht këtu, në faqen e vendit përkatës.</p>
+                </div>
+              </details>
+              <details class="info-item">
+                <summary>Vendi im nuk gjendet në Atlas?<span class="info-toggle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+                <div class="info-body">
+                  <p>Atlas rritet me kontributet e komunitetit — sa më shumë përvoja të ndahen për një vend në forum, aq më shpejt merr edhe faqen e vet këtu.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

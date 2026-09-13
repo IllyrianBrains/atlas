@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { atlasCountries } from '../data/atlas';
+
+const htmlFiles = import.meta.glob('../data/atlas/*.html', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const contentBySlug: Record<string, string> = {};
+for (const [path, content] of Object.entries(htmlFiles)) {
+  const slug = path.split('/').pop()!.replace('.html', '');
+  contentBySlug[slug] = content;
+}
+
+export function getStaticPaths() {
+  return atlasCountries.map((country) => ({ params: { slug: country.slug }, props: { country } }));
+}
+
+const { country } = Astro.props;
+const html = contentBySlug[country.slug] ?? '';
+const priorities: Record<string, string[]> = {
+  gjermani: ['Regjistro adresën (Anmeldung)', 'Sigurohu në sistemin shëndetësor', 'Hap llogarinë bankare'],
+  zvicer: ['Regjistrohu në komunë', 'Bëj sigurimin brenda 3 muajve', 'Kontrollo kushtet e lejes së punës'],
+  austri: ['Regjistro banimin brenda 3 ditëve', 'Kontrollo lejen e qëndrimit', 'Aktivizo sigurimet sociale'],
+  france: ['Siguro dokumentin e qëndrimit', 'Hap llogarinë bankare', 'Regjistrohu për mbulim shëndetësor'],
+  finlande: ['Apliko për lejen përmes Migri', 'Regjistro adresën dhe identitetin', 'Hap llogari bankare'],
+  suedi: ['Apliko te Migrationsverket', 'Merr personnummer', 'Aktivizo BankID'],
+  malte: ['Kontrollo lejen e punës', 'Siguro një adresë banimi', 'Regjistro shërbimet bazë'],
+  'mbreteria-e-bashkuar': ['Kontrollo vizën përkatëse', 'Siguro provën e adresës', 'Merr National Insurance number'],
+  trento: ['Kontakto Cinformi', 'Apliko për lejen e qëndrimit', 'Regjistrohu në shëndetësi'],
+  oxford: ['Kontrollo statusin e vizës', 'Siguro banesën', 'Regjistrohu te mjeku i familjes'],
+};
+const countryPriorities = priorities[country.slug] ?? [];
+---
+<BaseLayout title={`${country.title} · Atlas · Illyrian Brains`} description={`Udhëzuesi Atlas për ${country.title} — informacion praktik për integrim, mbledhur nga komuniteti Illyrian Brains.`}>
+  <Header />
+  <main>
+    <section class="country-hero tone-dark">
+      <div class="container city-page country-hero-grid">
+        <div>
+        <p class="eyebrow">Atlas</p>
+        <h1>{country.flag} {country.title}</h1>
+        <p class="about-body">Informacion praktik i mbledhur nga komuniteti Illyrian Brains për t’u orientuar në {country.title}. Nuk zëvendëson burimet zyrtare.</p>
+        <div class="country-hero-actions"><a href="#udhezuesi">Lexo udhëzuesin ↓</a><a href={`/lojera/${country.slug}/`}>Testo njohuritë →</a></div>
+        </div>
+        <aside class="priority-card"><p>Fillo këtu</p><h2>3 prioritetet e para</h2><ol>{countryPriorities.map((item) => <li><span>✓</span>{item}</li>)}</ol><small>Kontrollo gjithmonë kërkesat aktuale te burimet zyrtare.</small></aside>
+      </div>
+    </section>
+
+    <section class="section tone-white guide-section" id="udhezuesi">
+      <div class="container guide-layout">
+        <aside class="guide-sidebar"><p>Në këtë guidë</p><nav id="guide-toc" aria-label="Përmbajtja e guidës"></nav><a href={`/lojera/${country.slug}/`}>Bëj kuizin <span>→</span></a></aside>
+        {html
+          ? <div class="atlas-content" set:html={html} />
+          : <p class="about-body">Përmbajtja për këtë vend do të shtohet së shpejti.</p>}
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .country-hero{padding:clamp(64px,8vw,100px) 0}.country-hero-grid{display:grid;grid-template-columns:1.2fr .65fr;align-items:end;gap:clamp(50px,8vw,110px)}.country-hero h1{font-size:clamp(46px,7vw,78px)}.country-hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}.country-hero-actions a{padding:11px 17px;border:1px solid rgba(255,255,255,.32);border-radius:999px;color:#fff;font-size:12px;font-weight:700}.country-hero-actions a:first-child{color:var(--ink);background:#fff}.priority-card{padding:26px;border:1px solid rgba(255,255,255,.16);border-radius:16px;background:rgba(255,255,255,.055)}.priority-card>p{margin:0;color:#c9aebd;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.13em}.priority-card h2{margin:5px 0 19px;font-size:25px;font-weight:400}.priority-card ol{display:grid;gap:11px;margin:0;padding:0;list-style:none}.priority-card li{display:grid;grid-template-columns:25px 1fr;gap:10px;align-items:center;color:rgba(255,255,255,.86);font-size:13px}.priority-card li span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;color:#fff;background:var(--accent);font-size:11px}.priority-card small{display:block;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.45);font-size:9px;line-height:1.5}.guide-layout{display:grid;grid-template-columns:220px minmax(0,760px);gap:clamp(45px,7vw,90px);align-items:start}.guide-sidebar{position:sticky;top:116px;padding:18px 0;border-block:1px solid var(--line)}.guide-sidebar>p{margin:0 0 11px;color:var(--muted);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}.guide-sidebar nav{display:grid}.guide-sidebar nav a{padding:7px 0;color:var(--muted);font-size:12px;line-height:1.35;transition:.15s ease}.guide-sidebar nav a:hover,.guide-sidebar nav a.is-active{color:var(--accent);padding-left:4px}.guide-sidebar>a{display:flex;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);color:var(--accent);font-size:12px;font-weight:800}
+  .guide-section{padding-block:clamp(72px,9vw,112px)}:global(.atlas-content){max-width:none}.atlas-content :global(> *){margin-top:0}.atlas-content :global(h1),.atlas-content :global(h2),.atlas-content :global(h3){scroll-margin-top:115px;color:var(--ink);letter-spacing:-.025em}.atlas-content :global(h1){margin:88px 0 25px;padding-top:42px;border-top:1px solid var(--line);font-size:clamp(32px,4vw,43px);line-height:1.1}.atlas-content :global(h1:first-child){margin-top:0;padding-top:0;border:0}.atlas-content :global(h2){margin:58px 0 19px;font-size:27px;line-height:1.2}.atlas-content :global(h3){margin:46px 0 16px;font-size:22px;line-height:1.3}.atlas-content :global(h4){margin:36px 0 14px;font-size:18px;line-height:1.35}.atlas-content :global(h1+h2){margin-top:30px}.atlas-content :global(h2+h3){margin-top:25px}.atlas-content :global(p),.atlas-content :global(li){color:#35363b;font-size:17px;line-height:1.82}.atlas-content :global(p){margin:0 0 21px}.atlas-content :global(p+p){margin-top:4px}.atlas-content :global(strong){color:var(--ink);font-weight:750}.atlas-content :global(ul),.atlas-content :global(ol){margin:0 0 29px;padding-left:25px}.atlas-content :global(p+ul),.atlas-content :global(p+ol){margin-top:8px}.atlas-content :global(ul+p),.atlas-content :global(ol+p){margin-top:31px}.atlas-content :global(li){margin-bottom:11px;padding-left:4px}.atlas-content :global(li:last-child){margin-bottom:0}.atlas-content :global(li::marker){color:var(--accent)}.atlas-content :global(a){font-weight:650;text-decoration-thickness:1px;text-decoration-color:rgba(116,71,97,.4)}.atlas-content :global(blockquote){position:relative;margin:38px 0;padding:24px 26px 24px 56px;border:1px solid rgba(116,71,97,.2);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;background:#f7f3f5}.atlas-content :global(blockquote::before){content:'!';position:absolute;left:18px;top:23px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;color:#fff;background:var(--accent);font-size:12px;font-weight:800}.atlas-content :global(blockquote p){font-size:15px;line-height:1.7}.atlas-content :global(blockquote p:last-child){margin-bottom:0}.atlas-content :global(details){margin:14px 0;padding:0;border:1px solid var(--line);border-radius:11px;background:#fff;box-shadow:none}.atlas-content :global(details+details){margin-top:12px}.atlas-content :global(details+ :not(details)){margin-top:38px}.atlas-content :global(details summary){position:relative;padding:18px 48px 18px 20px;font-size:16px;line-height:1.5}.atlas-content :global(details summary::after){content:'+';position:absolute;right:18px;color:var(--accent);font-size:20px;font-weight:400}.atlas-content :global(details[open] summary::after){content:'−'}.atlas-content :global(details[open] summary){margin:0;border-bottom:1px solid var(--line);background:#faf8f9}.atlas-content :global(details>p),.atlas-content :global(details>ul),.atlas-content :global(details>ol),.atlas-content :global(details>div){margin:22px}.atlas-content :global(.atlas-gallery){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:38px 0 44px}.atlas-content :global(.atlas-gallery.gallery-three){grid-template-columns:1.35fr .65fr}.atlas-content :global(.atlas-gallery.gallery-three p:first-child){grid-row:span 2}.atlas-content :global(.atlas-gallery p){height:100%;margin:0}.atlas-content :global(.atlas-gallery img){width:100%;height:100%;min-height:190px;margin:0;object-fit:cover}.atlas-content :global(p:has(>img:only-child)){margin-block:38px 44px}.atlas-content :global(p:has(>img:only-child) img){width:100%;max-height:460px;object-fit:cover}.atlas-content :global(table){font-size:14px}.atlas-content :global(th){color:var(--ink);background:#f1edef}.atlas-content :global(td){color:#3d3e43}.atlas-content :global(.table-scroll){margin:34px 0 40px;overflow-x:auto;border:1px solid var(--line);border-radius:10px}.atlas-content :global(.table-scroll table){min-width:620px;margin:0}.atlas-content :global(hr){margin:72px 0;border-color:var(--line)}
+  @media(max-width:900px){.country-hero-grid{grid-template-columns:1fr;gap:36px}.priority-card{max-width:600px}.guide-section{padding-top:0}.guide-layout{display:block;width:100%}.guide-sidebar{position:sticky;z-index:20;top:76px;display:block;width:100%;padding:0;border:0;border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);backdrop-filter:blur(12px)}.guide-sidebar>p,.guide-sidebar>a{display:none}.guide-sidebar nav{display:flex;gap:5px;width:100%;padding:10px 16px;overflow-x:auto;scrollbar-width:none}.guide-sidebar nav::-webkit-scrollbar{display:none}.guide-sidebar nav a{flex:0 0 auto;max-width:190px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#fff;font-size:11px}.guide-sidebar nav a:hover,.guide-sidebar nav a.is-active{padding-left:12px;border-color:var(--accent);color:#fff;background:var(--accent)}.atlas-content{width:min(calc(100% - 40px),760px);margin:0 auto;padding-top:58px}}
+  @media(max-width:600px){.country-hero{padding:48px 0 42px}.country-hero h1{max-width:100%;margin-top:2px;font-size:clamp(37px,11vw,48px);line-height:1.04;overflow-wrap:anywhere}.country-hero .about-body{font-size:16px;line-height:1.65}.country-hero-actions{display:grid;grid-template-columns:1fr;margin-top:23px}.country-hero-actions a{text-align:center}.priority-card{padding:20px;border-radius:13px}.priority-card h2{font-size:22px}.priority-card li{font-size:12px;line-height:1.45}.priority-card small{font-size:10px}.guide-sidebar{top:72px}.guide-sidebar nav{padding-inline:12px}.atlas-content{width:min(calc(100% - 32px),760px);padding-top:46px;overflow-wrap:anywhere}.guide-section{padding-block:0 72px}.atlas-content :global(h1){margin-top:58px;padding-top:31px;font-size:31px;line-height:1.15}.atlas-content :global(h2){margin-top:42px;font-size:24px;line-height:1.25}.atlas-content :global(h3){margin-top:34px;font-size:20px}.atlas-content :global(h4){margin-top:29px;font-size:17px}.atlas-content :global(h1+h2){margin-top:24px}.atlas-content :global(h2+h3){margin-top:22px}.atlas-content :global(p),.atlas-content :global(li){font-size:16px;line-height:1.72}.atlas-content :global(ul),.atlas-content :global(ol){margin-bottom:25px;padding-left:21px}.atlas-content :global(a){overflow-wrap:anywhere;word-break:break-word}.atlas-content :global(blockquote){margin-block:28px;padding:18px 15px 18px 43px}.atlas-content :global(blockquote::before){left:11px;top:18px}.atlas-content :global(blockquote p){font-size:14px}.atlas-content :global(details summary){padding:16px 43px 16px 15px;font-size:15px}.atlas-content :global(details summary::after){right:15px}.atlas-content :global(details>p),.atlas-content :global(details>ul),.atlas-content :global(details>ol),.atlas-content :global(details>div){margin:16px}.atlas-content :global(details li),.atlas-content :global(details p){font-size:15px;line-height:1.65}.atlas-content :global(.atlas-gallery),.atlas-content :global(.atlas-gallery.gallery-three){grid-template-columns:1fr;margin-block:28px 34px}.atlas-content :global(.atlas-gallery.gallery-three p:first-child){grid-row:auto}.atlas-content :global(.atlas-gallery img){min-height:0;aspect-ratio:4/3}.atlas-content :global(p:has(>img:only-child)){margin-block:29px 34px}.atlas-content :global(p:has(>img:only-child) img){height:auto;max-height:none;aspect-ratio:auto}.atlas-content :global(.table-scroll){width:calc(100vw - 32px);margin-block:28px 34px;border-radius:8px;-webkit-overflow-scrolling:touch}.atlas-content :global(th),.atlas-content :global(td){padding:9px 10px;font-size:13px}.atlas-content :global(pre){max-width:100%;padding:14px;overflow-x:auto;font-size:12px}.atlas-content :global(.atlas-map){margin-block:30px;border-radius:9px;padding-top:70%}}
+</style>
+
+<script>
+  const content=document.querySelector<HTMLElement>('.atlas-content'); const toc=document.querySelector<HTMLElement>('#guide-toc');
+  if(content&&toc){
+    const headings=[...content.querySelectorAll<HTMLElement>(':scope > h1, :scope > h2, :scope > h3')].filter(h=>h.textContent?.trim());
+    headings.slice(0,12).forEach((heading,index)=>{heading.id=`seksioni-${index+1}`;const link=document.createElement('a');link.href=`#${heading.id}`;link.textContent=(heading.textContent||'').replace(/^\d+[.)]?\s*/,'');toc.append(link)});
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){toc.querySelectorAll('a').forEach(a=>a.classList.toggle('is-active',a.getAttribute('href')===`#${entry.target.id}`))}}),{rootMargin:'-120px 0px -70%'});headings.forEach(h=>observer.observe(h));
+    const imageParagraphs=[...content.querySelectorAll<HTMLParagraphElement>('p:has(> img:only-child)')];let run:HTMLParagraphElement[]=[];
+    const group=()=>{if(run.length>1){const gallery=document.createElement('div');gallery.className=`atlas-gallery ${run.length===3?'gallery-three':''}`;run[0].before(gallery);run.forEach(p=>gallery.append(p))}run=[]};
+    imageParagraphs.forEach((p,index)=>{if(!run.length||run.at(-1)?.nextElementSibling===p)run.push(p);else{group();run.push(p)}if(index===imageParagraphs.length-1)group()});
+    content.querySelectorAll('table').forEach(table=>{if(!table.parentElement?.classList.contains('table-scroll')){const wrap=document.createElement('div');wrap.className='table-scroll';table.before(wrap);wrap.append(table)}});
+  }
+</script>

@@ -1,0 +1,16 @@
+{
+  "name": "ib-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "atlas:sync": "python3 scripts/sync-atlas.py"
+  },
+  "dependencies": {
+    "astro": "^7.2.2"
+  }
+}

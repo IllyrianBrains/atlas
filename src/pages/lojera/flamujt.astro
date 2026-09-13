@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { atlasCountries } from '../../data/atlas';
+const countries = atlasCountries.map(({ title, flag }) => ({ title, flag }));
+---
+<BaseLayout title="Gjeje flamurin · Lojëra Atlas" description="Përputh vendet e Atlas-it me flamujt e tyre.">
+  <Header /><main class="play-page"><section class="play-shell"><div class="container">
+    <a class="play-back" href="/lojera/">← Të gjitha lojërat</a>
+    <div class="play-card" id="flag-game" data-items={JSON.stringify(countries)}>
+      <div class="play-top"><div><p class="eyebrow">Kujtesë · 10 raunde</p><h1>Gjeje flamurin</h1></div><div class="score-pill">Pikë <strong id="score">0</strong></div></div>
+      <div class="round-meta"><span id="round-label">Raundi 1 nga 10</span><span>Seri <b id="streak">0</b> 🔥</span></div><div class="progress"><span id="progress"></span></div>
+      <div id="game-area"><p class="prompt-label">Cili është flamuri i…</p><h2 id="country-name"></h2><div class="flag-options" id="options"></div><p class="feedback" id="feedback" aria-live="polite"></p></div>
+      <div class="game-result" id="result" hidden><span class="result-emoji">🏁</span><h2 id="result-score"></h2><p id="result-copy"></p><button class="play-button" id="again" type="button">Luaj përsëri</button></div>
+    </div>
+  </div></section></main><Footer />
+</BaseLayout>
+<style>
+  .play-shell{min-height:720px;padding:48px 0 96px;background:#f3f1f2}.play-back{display:inline-block;margin-bottom:24px;color:var(--muted);font-size:13px;font-weight:700}.play-card{max-width:780px;margin:auto;padding:clamp(24px,5vw,52px);border:1px solid rgba(116,71,97,.15);border-radius:24px;background:#fff;box-shadow:0 22px 65px rgba(23,24,29,.08)}.play-top{display:flex;align-items:start;justify-content:space-between;gap:20px}.play-top h1{margin:0;font-size:clamp(36px,6vw,58px);font-weight:400;line-height:1}.score-pill{padding:10px 16px;border-radius:999px;background:var(--soft);font-size:12px}.score-pill strong{margin-left:5px;font-size:18px}.round-meta{display:flex;justify-content:space-between;margin-top:35px;color:var(--muted);font-size:12px}.progress{height:6px;margin:9px 0 46px;overflow:hidden;border-radius:9px;background:var(--soft)}.progress span{display:block;width:10%;height:100%;border-radius:inherit;background:var(--accent);transition:width .25s}.prompt-label{text-align:center;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.11em}.play-card h2{text-align:center;margin:6px 0 30px;font-size:clamp(30px,5vw,44px);font-weight:400}.flag-options{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.flag-option{min-height:112px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:48px;cursor:pointer;transition:.18s ease}.flag-option:hover:not(:disabled){border-color:var(--accent);transform:translateY(-2px)}.flag-option.correct{border-color:#4f8064;background:#e8f2ec}.flag-option.wrong{border-color:#b64c54;background:#fae9ea}.feedback{min-height:24px;margin:20px 0 0;text-align:center;font-size:13px;font-weight:700}.game-result{text-align:center;padding:34px 0}.result-emoji{font-size:64px}.game-result h2{margin:15px 0 8px}.game-result p{color:var(--muted)}.play-button{margin-top:16px;padding:13px 22px;border:0;border-radius:999px;color:#fff;background:var(--accent);font:700 14px var(--font-body);cursor:pointer}@media(max-width:520px){.flag-option{min-height:90px}.play-card{border-radius:16px}.score-pill{padding:8px 11px}}
+</style>
+<script>
+  interface Item { title:string; flag:string }
+  const root=document.querySelector<HTMLElement>('#flag-game')!; const items:Item[]=JSON.parse(root.dataset.items||'[]');
+  const name=document.querySelector<HTMLElement>('#country-name')!, options=document.querySelector<HTMLElement>('#options')!, feedback=document.querySelector<HTMLElement>('#feedback')!, scoreEl=document.querySelector<HTMLElement>('#score')!, streakEl=document.querySelector<HTMLElement>('#streak')!, roundEl=document.querySelector<HTMLElement>('#round-label')!, progress=document.querySelector<HTMLElement>('#progress')!, area=document.querySelector<HTMLElement>('#game-area')!, result=document.querySelector<HTMLElement>('#result')!;
+  let round=0,score=0,streak=0,order:Item[]=[]; const shuffle=<T,>(a:T[])=>[...a].sort(()=>Math.random()-.5);
+  function start(){round=score=streak=0;order=shuffle(items);result.hidden=true;area.hidden=false;scoreEl.textContent='0';streakEl.textContent='0';render()}
+  function render(){const answer=order[round];name.textContent=answer.title;roundEl.textContent=`Raundi ${round+1} nga 10`;progress.style.width=`${(round+1)*10}%`;feedback.textContent='';options.innerHTML='';const choices=shuffle([answer,...shuffle(items.filter(x=>x.title!==answer.title)).slice(0,3)]);choices.forEach(item=>{const b=document.createElement('button');b.className='flag-option';b.type='button';b.textContent=item.flag;b.setAttribute('aria-label',`Flamuri ${item.flag}`);b.onclick=()=>pick(b,item===answer,answer);options.append(b)})}
+  function pick(button:HTMLButtonElement,correct:boolean,answer:Item){options.querySelectorAll<HTMLButtonElement>('button').forEach(b=>{b.disabled=true;if(b.textContent===answer.flag)b.classList.add('correct')});if(correct){score+=10+streak*2;streak++;feedback.textContent='Saktë! + pikë';}else{streak=0;button.classList.add('wrong');feedback.textContent=`Ishte ${answer.flag} — ${answer.title}.`}scoreEl.textContent=String(score);streakEl.textContent=String(streak);setTimeout(()=>{round++;round===10?finish():render()},850)}
+  function finish(){area.hidden=true;result.hidden=false;document.querySelector<HTMLElement>('#result-score')!.textContent=`${score} pikë`;document.querySelector<HTMLElement>('#result-copy')!.textContent=score>=110?'Shkëlqyeshëm — flamujt i njeh përmendësh!':score>=70?'Bukur! Edhe një raund dhe i fikson të gjithë.':'Fillim i mirë. Provo përsëri për një seri më të gjatë.'}
+  document.querySelector<HTMLButtonElement>('#again')!.onclick=start;start();
+</script>
