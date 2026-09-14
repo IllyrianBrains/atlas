@@ -10,9 +10,12 @@ const countries = atlasCountries.filter((c) => c.kind !== 'city');
 const cities = atlasCountries.filter((c) => c.kind === 'city');
 ---
 <header class="site-header">
-  <a class="brand" href="/" aria-label="Atlas nga Illyrian Brains">
-    <img src="/assets/logo.png" alt="Illyrian Brains network" />
-  </a>
+  <div class="brand">
+    <a class="brand-main" href="https://illyrianbrains.org/" aria-label="Shko te Illyrian Brains">
+      <img src="/assets/logo.png" alt="Illyrian Brains network" />
+    </a>
+    <a class="brand-project" href="/" aria-label="Shko te ballina e Atlas">Atlas</a>
+  </div>
   <button class="nav-toggle" type="button" aria-label="Hap menynë" aria-expanded="false" aria-controls="site-nav">
     <span></span><span></span><span></span>
   </button>
@@ -38,7 +41,14 @@ const cities = atlasCountries.filter((c) => c.kind === 'city');
 </header>
 
 <style>
+  .brand-main { display: block; }
+  .brand-project { display: flex; align-items: center; min-height: 27px; padding-left: 13px; border-left: 1px solid rgba(255,255,255,.3); color: #ead6e1; font-family: var(--font-display); font-size: 17px; font-weight: 500; line-height: 1; letter-spacing: .12em; text-transform: uppercase; transition: color .2s ease; }
+  .brand-project:hover { color: #fff; }
   .dropdown-divider { margin: 6px 4px; border-top: 1px solid rgba(255,255,255,.12); }
+  @media (max-width: 600px) {
+    .brand { gap: 9px; }
+    .brand-project { min-height: 23px; padding-left: 9px; font-size: 13px; letter-spacing: .1em; }
+  }
 </style>
 
 <script>
