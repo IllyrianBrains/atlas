@@ -2,12 +2,12 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import { atlasCountries } from '../../data/atlas';
+import { atlasDestinations } from '../../data/atlas';
 import { atlasQuizzes } from '../../data/quizzes';
 
 export function getStaticPaths() {
   return atlasQuizzes.map((quiz) => {
-    const country = atlasCountries.find((c) => c.slug === quiz.slug)!;
+    const country = atlasDestinations.find((c) => c.slug === quiz.slug)!;
     return { params: { slug: quiz.slug }, props: { country, quiz } };
   });
 }

@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { atlasCountries } from '../data/atlas';
+import { atlasDestinations } from '../data/atlas';
 import { atlasQuizzes } from '../data/quizzes';
 const questionCount = atlasQuizzes.reduce((sum, quiz) => sum + quiz.questions.length, 0);
 ---
@@ -23,7 +23,7 @@ const questionCount = atlasQuizzes.reduce((sum, quiz) => sum + quiz.questions.le
     <section class="section games-countries"><div class="container">
       <div class="games-section-head"><div><p class="eyebrow">Kuize sipas vendit</p><h2>Sa mirë e njeh destinacionin?</h2></div><p>Pyetje praktike nga udhëzuesit Atlas, me shpjegim pas çdo përgjigjeje.</p></div>
       <div class="country-game-grid">
-        {atlasCountries.map((country, index) => { const quiz = atlasQuizzes.find((q) => q.slug === country.slug); return quiz ? (
+        {atlasDestinations.map((country, index) => { const quiz = atlasQuizzes.find((q) => q.slug === country.slug); return quiz ? (
           <a class="country-game-card" href={`/lojera/${country.slug}/`}><span class="country-game-index">{String(index + 1).padStart(2, '0')}</span><span class="country-game-flag" aria-hidden="true">{country.flag}</span><span class="country-game-copy"><strong>{country.title}</strong><small>{quiz.questions.length} pyetje · pa limit kohe</small></span><span class="country-game-arrow" aria-hidden="true">↗</span></a>
         ) : null; })}
       </div>

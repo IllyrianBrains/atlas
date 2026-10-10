@@ -2,21 +2,43 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { atlasCountries } from '../data/atlas';
+import { atlasCountries, atlasCountryGroups } from '../data/atlas';
 
 const featured = [
   { ...atlasCountries.find((c) => c.slug === 'gjermani')!, image: '/assets/atlas/gjermani/9b6b14586347fc070e33586566e14f81dae728df.jpeg', label: 'Punë · Dokumente · Jetë' },
   { ...atlasCountries.find((c) => c.slug === 'zvicer')!, image: '/assets/atlas/zvicer/b73ba430a8266e02be1fbbc26d9126527b8df4d1.jpeg', label: 'Leje · Sigurim · Transport' },
   { ...atlasCountries.find((c) => c.slug === 'france')!, image: '/assets/atlas/france/e5dd58d6c0baf912d38c7028751693fa5675302a.jpeg', label: 'Punë · Banesë · Kulturë' },
 ];
+
+const countryCodes: Record<string, string> = {
+  gjermani: 'DEU', zvicer: 'CHE', austri: 'AUT', france: 'FRA', finlande: 'FIN',
+  suedi: 'SWE', malte: 'MLT', itali: 'ITA', 'mbreteria-e-bashkuar': 'GBR',
+  danimarke: 'DNK', poloni: 'POL', norvegji: 'NOR', ceki: 'CZE', holande: 'NLD',
+  belgjike: 'BEL', irlande: 'IRL', luksemburg: 'LUX', spanje: 'ESP', shqiperi: 'ALB', shba: 'USA',
+};
+const countryGeoNames: Record<string, string> = { france: 'France', norvegji: 'Norway', malte: 'Malta' };
+const countryFallbackCenters: Record<string, [number, number]> = { malte: [35.94, 14.38] };
+const mapCountries = atlasCountryGroups.map((country) => ({
+  slug: country.slug,
+  title: country.title,
+  flag: country.flag,
+  status: country.status,
+  iso: countryCodes[country.slug],
+  geoName: countryGeoNames[country.slug],
+  fallbackCenter: countryFallbackCenters[country.slug],
+  cities: country.cities.map((city) => ({ slug: city.slug, title: city.title, status: city.status, center: [city.lat, city.lng] as [number, number] })),
+})).filter((country) => country.iso);
+const sortedCountryGroups = [...atlasCountryGroups].sort((a, b) => a.title.localeCompare(b.title, 'sq'));
+const countryInitials = [...new Set(sortedCountryGroups.map((country) => country.title[0].toLocaleUpperCase('sq')))];
+const totalCityCount = sortedCountryGroups.reduce((total, country) => total + country.cities.length, 0);
 ---
-<BaseLayout title="Atlas · Udhëzues për shqiptarët jashtë vendit" description="Udhëzues praktikë, të ndërtuar nga komuniteti shqiptar, për jetën dhe integrimin në vende të ndryshme.">
+<BaseLayout title="Atlas · Udhëzues për shqiptarët jashtë vendit" description="Udhëzues praktikë, të ndërtuar nga komuniteti shqiptar, për jetën dhe integrimin në vende të ndryshme." leaflet>
   <Header />
   <main class="home-page">
     <section class="atlas-hero">
       <div class="container atlas-hero-grid">
         <div class="atlas-hero-copy">
-          <h1>Fillimi në një vend të ri, <span>pak më i lehtë.</span></h1>
+          <h1>Integrimi <span>në 4 hapa.</span></h1>
           <p>Informacion praktik për dokumentet, punën, banesën dhe jetën e përditshme — mbledhur nga njerëz që e kanë kaluar vetë këtë rrugë.</p>
           <div class="hero-actions">
             <a class="button hero-primary" href="#vendet">Gjej vendin tënd ↓</a>
@@ -24,19 +46,7 @@ const featured = [
           </div>
           <p class="trust-note"><span aria-hidden="true">✓</span> Falas, pa regjistrim, i hapur për të gjithë</p>
         </div>
-        <aside class="hero-finder" aria-label="Gjej një udhëzues" data-country-index={JSON.stringify(atlasCountries.map(({ title, slug }) => ({ title, slug })))}>
-          <p>Ku po shkon?</p>
-          <label class="finder-field" for="hero-country-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg><input id="hero-country-search" type="search" placeholder="Kërko p.sh. Gjermani" autocomplete="off" /></label>
-          <div class="quick-links">
-            {atlasCountries.slice(0, 6).map((country) => <a href={`/${country.slug}/`} data-country-link data-name={country.title.toLowerCase()}><span>{country.flag}</span>{country.title}</a>)}
-          </div>
-          <a class="finder-all" href="#vendet">Shiko të gjitha destinacionet <span>→</span></a>
-        </aside>
       </div>
-    </section>
-
-    <section class="home-strip" aria-label="Çfarë përmban Atlas">
-      <div class="container home-strip-inner"><span>Dokumentet</span><i>◆</i><span>Puna</span><i>◆</i><span>Banesa</span><i>◆</i><span>Shëndetësia</span><i>◆</i><span>Jeta e përditshme</span></div>
     </section>
 
     <section class="section featured-section">
@@ -48,15 +58,25 @@ const featured = [
       </div>
     </section>
 
+    <section class="section map-section" aria-labelledby="map-title">
+      <div class="container">
+        <div class="home-heading"><div><p class="eyebrow">Harta e Atlasit</p><h2 id="map-title">Shtetet dhe qytetet</h2></div><p>Zgjidh një shtet ose një qytet të komunitetit për të hapur guidën përkatëse.</p></div>
+        <div class="country-map" id="country-map" data-boundaries="/assets/maps/countries-110m.geojson" data-countries={JSON.stringify(mapCountries)} role="region" aria-label="Harta interaktive e shteteve dhe qyteteve në Atlas"></div>
+        <div class="map-legend"><span><i class="country-key"></i>Shtet në Atlas</span><span><i class="city-key"></i>Qytet i rrjetit</span></div>
+      </div>
+    </section>
+
     <section class="section destinations" id="vendet">
       <div class="container">
-        <div class="home-heading"><div><p class="eyebrow">Të gjitha guidat</p><h2>Gjej vendin tënd</h2></div><p>Zgjidh një shtet ose qytet për të parë udhëzuesin praktik.</p></div>
+        <div class="home-heading"><div><p class="eyebrow">Të gjitha guidat</p><h2>Gjej vendin tënd</h2></div><p>Zgjidh fillimisht shtetin, pastaj guidën e qytetit që të intereson.</p></div>
+        <div class="catalogue-stats" aria-label="Përmbledhja e katalogut"><span><strong>{sortedCountryGroups.length}</strong>Shtete</span><span><strong>{totalCityCount}</strong>Qytete</span></div>
         <div class="directory-tools">
           <label class="directory-search" for="country-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg><input id="country-search" type="search" placeholder="Kërko destinacionin…" autocomplete="off" /></label>
-          <div class="directory-filters" role="group" aria-label="Filtro destinacionet"><button class="is-active" type="button" data-filter="all">Të gjitha</button><button type="button" data-filter="country">Shtete</button><button type="button" data-filter="city">Qytete</button></div>
         </div>
+        <div class="catalogue-index" role="group" aria-label="Filtro sipas shkronjës"><button class="is-active" type="button" data-letter="">Të gjitha</button>{countryInitials.map((letter) => <button type="button" data-letter={letter}>{letter}</button>)}</div>
+        <p class="catalogue-result" id="catalogue-result">{sortedCountryGroups.length} shtete</p>
         <div class="destination-grid" id="destination-grid">
-          {atlasCountries.map((country, index) => <a class="destination-card" href={`/${country.slug}/`} data-destination data-name={country.title.toLowerCase()} data-kind={country.kind ?? 'country'}><span class="destination-index">{String(index + 1).padStart(2, '0')}</span><span class="destination-flag">{country.flag}</span><span><strong>{country.title}</strong><small>{country.kind === 'city' ? 'Guidë qyteti' : 'Guidë vendi'}</small></span><b>→</b></a>)}
+          {sortedCountryGroups.map((country, index) => <article class={`destination-group ${country.status === 'draft' ? 'is-draft' : ''}`} data-destination data-name={`${country.title} ${country.cities.map((city) => city.title).join(' ')}`.toLocaleLowerCase('sq')} data-letter={country.title[0].toLocaleUpperCase('sq')}>{country.status === 'published' ? <a class="destination-card" href={`/${country.slug}/`}><span class="destination-index">{String(index + 1).padStart(2, '0')}</span><span class="destination-flag">{country.flag}</span><span><strong>{country.title}</strong><small>Guidë shteti</small></span>{country.cities.length > 0 && <span class="destination-count"><strong>{country.cities.length}</strong><small>{country.cities.length === 1 ? 'qytet' : 'qytete'}</small></span>}<b>→</b></a> : <div class="destination-card"><span class="destination-index">{String(index + 1).padStart(2, '0')}</span><span class="destination-flag">{country.flag}</span><span><strong>{country.title}</strong><small>Guidë në përgatitje</small></span>{country.cities.length > 0 && <span class="destination-count"><strong>{country.cities.length}</strong><small>{country.cities.length === 1 ? 'qytet' : 'qytete'}</small></span>}<b class="draft-badge">Draft</b></div>}</article>)}
         </div>
         <p class="no-results" id="no-results" hidden>Nuk e gjetëm këtë destinacion. <a href="mailto:illyrianbrains@gmail.com">Na sugjero një guidë →</a></p>
       </div>
@@ -73,17 +93,74 @@ const featured = [
 </BaseLayout>
 
 <style>
+  .map-section{color:#fff;background:var(--night)}.map-section .home-heading>p{color:rgba(255,255,255,.55)}.map-section .eyebrow{color:#c9aebd}.country-map{height:min(65vh,620px);overflow:hidden;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:#27262a;box-shadow:0 28px 70px rgba(0,0,0,.22);z-index:0}.country-map :global(.leaflet-tile-pane){filter:grayscale(1) brightness(.62) contrast(1.1)}.country-map :global(.leaflet-control-zoom a){border-color:rgba(255,255,255,.12);color:#fff;background:#25242a}.country-map :global(.leaflet-control-attribution){color:#999;background:rgba(23,24,29,.88)}.country-map :global(.leaflet-control-attribution a){color:#ddd}.country-map :global(.leaflet-popup-content-wrapper){border:1px solid rgba(255,255,255,.13);border-radius:12px;color:#fff;background:var(--night);box-shadow:0 20px 48px rgba(0,0,0,.38)}.country-map :global(.leaflet-popup-tip){background:var(--night)}.country-map :global(.leaflet-popup-content){width:210px!important;margin:18px;font-family:var(--font-body)}.country-map :global(.map-popup small),.country-map :global(.map-popup strong),.country-map :global(.map-popup span){display:block}.country-map :global(.map-popup small){color:#c9aebd;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}.country-map :global(.map-popup strong){margin-top:4px;font-family:var(--font-display);font-size:25px;font-weight:500}.country-map :global(.map-popup span){margin-top:5px;color:rgba(255,255,255,.56);font-size:11px}.country-map :global(.map-popup a){display:flex;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:800}.map-note{display:flex;align-items:center;gap:8px;margin:13px 2px 0;color:rgba(255,255,255,.48);font-size:10px}.map-note span{width:9px;height:9px;border:2px solid #fff;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(116,71,97,.35)}
+  .destination-group{overflow:hidden;border:1px solid rgba(116,71,97,.13);border-radius:11px;background:rgba(255,255,255,.82)}.destination-group[hidden]{display:none}.destination-group .destination-card{border:0;border-radius:0;background:transparent}.destination-group.is-draft{opacity:.45;filter:grayscale(.55)}.destination-group.is-draft:hover{transform:none!important;box-shadow:none!important;border-color:rgba(116,71,97,.13)!important}.draft-badge{padding:5px 7px;border-radius:999px;color:var(--muted)!important;background:#ece9eb;font-size:8px;text-transform:uppercase;letter-spacing:.08em}.city-list{display:flex;align-items:center;gap:7px;padding:10px 18px 14px;border-top:1px solid var(--line)}.city-list>span{margin-right:4px;color:var(--muted);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}.city-list a{display:flex;align-items:center;gap:15px;padding:7px 10px;border-radius:7px;color:var(--accent);background:#f4eff2;font-size:11px;font-weight:750}.city-list a b{font-size:10px}
   .atlas-hero{padding:clamp(72px,10vw,130px) 0;color:#fff;background-color:var(--night);background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:16px 16px}.atlas-hero-grid{display:grid;grid-template-columns:1.15fr .65fr;align-items:center;gap:clamp(50px,8vw,110px)}.atlas-hero h1{max-width:760px;margin:0;font-size:clamp(50px,7vw,88px);font-weight:300;line-height:.94;letter-spacing:-.055em}.atlas-hero h1 span{color:#c9aebd}.atlas-hero-copy>p:not(.eyebrow,.trust-note){max-width:650px;margin:28px 0 0;color:rgba(255,255,255,.66);font-size:18px}.hero-actions{margin-top:34px}.hero-primary{color:var(--ink);background:#fff}.hero-secondary{border:1px solid rgba(255,255,255,.35);color:#fff;background:transparent}.trust-note{display:flex;align-items:center;gap:8px;margin:20px 0 0;color:rgba(255,255,255,.45);font-size:11px}.trust-note span{color:#c9aebd}.hero-finder{padding:28px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(255,255,255,.06);box-shadow:0 30px 70px rgba(0,0,0,.18)}.hero-finder>p{margin:0 0 14px;font-size:13px;font-weight:700}.finder-field,.directory-search{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:center;padding:13px 14px;border-radius:9px;background:#fff}.finder-field svg,.directory-search svg{width:19px;fill:none;stroke:var(--accent);stroke-width:1.8}.finder-field input,.directory-search input{min-width:0;border:0;outline:0;background:transparent;font:14px var(--font-body)}.quick-links{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}.quick-links a{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:7px;color:rgba(255,255,255,.78);font-size:11px;transition:.15s ease}.quick-links a:hover{background:rgba(255,255,255,.09)}.quick-links a[hidden]{display:none}.quick-links span{font-size:17px}.finder-all{display:flex;justify-content:space-between;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:12px;font-weight:700}.home-strip{overflow:hidden;border-bottom:1px solid var(--line);background:#fff}.home-strip-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:18px;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}.home-strip i{color:var(--accent);font-size:6px}.home-heading{display:flex;align-items:end;justify-content:space-between;gap:40px;margin-bottom:34px}.home-heading h2{margin:0;font-size:clamp(35px,5vw,56px);font-weight:400;line-height:1}.home-heading>p{max-width:430px;margin:0;color:var(--muted)}.featured-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px}.featured-card{position:relative;min-height:390px;overflow:hidden;border-radius:16px;color:#fff}.featured-card img,.featured-shade{position:absolute;inset:0;width:100%;height:100%}.featured-card img{object-fit:cover;filter:saturate(.75);transition:transform .45s ease,filter .3s}.featured-shade{background:linear-gradient(transparent 25%,rgba(15,15,18,.88))}.featured-card:hover img{transform:scale(1.035);filter:saturate(1)}.featured-content{position:absolute;inset:auto 24px 24px}.featured-content>*{display:block}.featured-content small{color:rgba(255,255,255,.62);font-size:9px;text-transform:uppercase;letter-spacing:.1em}.featured-content strong{margin-top:7px;font-family:var(--font-display);font-size:28px;font-weight:500}.featured-content strong i{font-style:normal}.featured-content>span{margin-top:16px;font-size:12px;font-weight:700}.destinations{background:#f3f1f2;scroll-margin-top:80px}.directory-tools{display:flex;justify-content:space-between;gap:18px;margin-bottom:24px}.directory-search{width:min(380px,100%);border:1px solid var(--line)}.directory-filters{display:flex;gap:6px}.directory-filters button{padding:9px 15px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:#fff;font:700 11px var(--font-body);cursor:pointer}.directory-filters button.is-active{border-color:var(--ink);color:#fff;background:var(--ink)}.destination-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.destination-card{display:grid;grid-template-columns:32px 48px 1fr auto;gap:14px;align-items:center;padding:19px;border:1px solid rgba(116,71,97,.13);border-radius:11px;background:rgba(255,255,255,.82);transition:.18s ease}.destination-card:hover{border-color:var(--accent);transform:translateX(3px)}.destination-card[hidden]{display:none}.destination-index{color:#999;font-size:9px}.destination-flag{font-size:28px}.destination-card strong,.destination-card small{display:block}.destination-card strong{font-size:15px}.destination-card small{margin-top:2px;color:var(--muted);font-size:10px}.destination-card b{color:var(--accent)}.no-results{padding:35px;text-align:center;color:var(--muted)}.no-results a{color:var(--accent);font-weight:700}.home-how{background:#fff}.how-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(50px,9vw,120px)}.how-grid h2{margin:0;font-size:clamp(38px,5vw,58px);font-weight:400;line-height:1}.how-intro{margin:22px 0;color:var(--muted)}.how-grid>div>a{color:var(--accent);font-size:13px;font-weight:700}.how-list article{display:grid;grid-template-columns:50px 1fr;gap:18px;padding:25px 0;border-top:1px solid var(--line)}.how-list article:last-child{border-bottom:1px solid var(--line)}.how-list article>span{color:var(--accent);font-size:11px}.how-list strong{font-family:var(--font-display);font-size:22px}.how-list p{margin:5px 0 0;color:var(--muted);font-size:13px}.game-callout{overflow:hidden;color:#fff;background:var(--accent)}.game-callout-inner{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:70px}.game-callout .eyebrow{color:#ead6e1}.game-callout h2{max-width:600px;margin:0;font-size:clamp(40px,6vw,68px);font-weight:400;line-height:.95}.game-callout p:not(.eyebrow){color:rgba(255,255,255,.7)}.game-button{margin-top:15px;color:var(--accent-dark);background:#fff}.game-preview{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:12px;transform:rotate(3deg)}.game-preview span,.game-preview strong{display:grid;place-items:center;min-height:130px;border:1px solid rgba(255,255,255,.3);border-radius:14px;background:rgba(255,255,255,.1);font-size:58px}.game-preview strong{color:#ead6e1;font-size:64px}
   @media(max-width:850px){.atlas-hero-grid,.how-grid,.game-callout-inner{grid-template-columns:1fr}.hero-finder{max-width:600px}.featured-grid{grid-template-columns:1fr 1fr}.featured-card:first-child{grid-column:1/-1}.home-heading{display:block}.home-heading>p{margin-top:14px}.game-preview{max-width:560px}.directory-tools{align-items:flex-start}}@media(max-width:600px){.hero-actions{flex-direction:column;align-items:stretch}.hero-actions .button{width:100%}.home-strip-inner{justify-content:flex-start;overflow:auto}.featured-grid,.destination-grid{grid-template-columns:1fr}.featured-card:first-child{grid-column:auto}.featured-card{min-height:310px}.directory-tools{display:block}.directory-search{width:100%}.directory-filters{margin-top:12px}.destination-card{grid-template-columns:25px 38px 1fr auto;padding:15px 13px;gap:9px}.destination-flag{font-size:24px}.game-preview span,.game-preview strong{min-height:90px;font-size:42px}}
+  @media(max-width:600px){.country-map{height:430px;border-radius:12px}.city-list{flex-wrap:wrap}.city-list>span{width:100%}}
+  .map-legend{display:flex;flex-wrap:wrap;gap:18px;margin:14px 2px 0;color:rgba(255,255,255,.55);font-size:10px}.map-legend span{display:flex;align-items:center;gap:8px}.map-legend i{display:block}.country-key{width:19px;height:12px;border:1px solid #c9aebd;background:rgba(116,71,97,.5)}.city-key{width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:#d8a74b;box-shadow:0 0 0 3px rgba(216,167,75,.22)}.country-map :global(.atlas-country-shape){transition:fill-opacity .15s,stroke-width .15s}.country-map :global(.atlas-country-shape:hover){fill-opacity:.72;stroke-width:2.5}
+  .country-map :global(.atlas-reset-control a){font-size:17px;font-weight:700}.country-map :global(.leaflet-control-zoom a),.country-map :global(.atlas-reset-control a){width:32px;height:32px;line-height:32px}
+  .destination-group .destination-card{grid-template-columns:32px 48px 1fr auto auto}.destination-count{min-width:48px;padding-right:10px;text-align:right}.destination-count strong{font-family:var(--font-display);font-size:22px;font-weight:500;line-height:1}.destination-count small{margin-top:2px!important;font-size:9px!important;text-transform:uppercase;letter-spacing:.08em}
+  .catalogue-stats{display:flex;gap:36px;margin:-8px 0 28px;padding-block:19px;border-block:1px solid rgba(116,71,97,.16)}.catalogue-stats span{display:flex;align-items:baseline;gap:9px;color:var(--muted);font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.09em}.catalogue-stats strong{color:var(--ink);font-family:var(--font-display);font-size:34px;font-weight:400;line-height:1}.catalogue-index{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}.catalogue-index button{min-width:34px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;color:var(--muted);background:#fff;font:700 11px var(--font-body);cursor:pointer}.catalogue-index button:first-child{padding-inline:14px}.catalogue-index button:hover,.catalogue-index button.is-active{border-color:var(--accent);color:#fff;background:var(--accent)}.catalogue-result{margin:0 0 12px;color:var(--muted);font-size:11px;font-weight:650}.destinations .destination-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}.destinations .destination-group{background:#fff;box-shadow:0 5px 14px rgba(23,24,29,.035);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.destinations .destination-group:hover{border-color:rgba(116,71,97,.34);box-shadow:0 12px 25px rgba(23,24,29,.08);transform:translateY(-2px)}.destinations .destination-card:hover{transform:none}
+  .atlas-hero-grid{grid-template-columns:minmax(0,820px)}
+  @media(max-width:600px){.destination-group .destination-card{grid-template-columns:25px 38px 1fr auto auto}.destination-count{min-width:38px;padding-right:3px}.destination-count strong{font-size:19px}}
 </style>
 
 <script>
-  const heroSearch = document.querySelector<HTMLInputElement>('#hero-country-search');
-  const quickLinks = [...document.querySelectorAll<HTMLElement>('[data-country-link]')];
-  heroSearch?.addEventListener('input', () => { const q=heroSearch.value.trim().toLowerCase(); quickLinks.forEach(link => link.hidden = !!q && !link.dataset.name?.includes(q)); });
-  const finder=document.querySelector<HTMLElement>('.hero-finder'); const countryIndex:{title:string;slug:string}[]=JSON.parse(finder?.dataset.countryIndex||'[]');
-  heroSearch?.addEventListener('keydown', (event) => { if(event.key==='Enter'){const q=heroSearch.value.trim().toLowerCase();const match=countryIndex.find(country=>country.title.toLowerCase().includes(q));if(match&&q)window.location.href=`/${match.slug}/`;else document.querySelector('#vendet')?.scrollIntoView();} });
-  const search=document.querySelector<HTMLInputElement>('#country-search'); const cards=[...document.querySelectorAll<HTMLElement>('[data-destination]')]; const empty=document.querySelector<HTMLElement>('#no-results')!; const filters=[...document.querySelectorAll<HTMLButtonElement>('[data-filter]')]; let active='all';
-  function update(){const q=search?.value.trim().toLowerCase()||'';let visible=0;cards.forEach(card=>{const show=(!q||card.dataset.name?.includes(q))&&(active==='all'||card.dataset.kind===active);card.hidden=!show;if(show)visible++});empty.hidden=visible>0}
-  search?.addEventListener('input',update);filters.forEach(button=>button.addEventListener('click',()=>{active=button.dataset.filter||'all';filters.forEach(b=>b.classList.toggle('is-active',b===button));update()}));
+  declare global { interface Window { L: any } }
+  const mapElement = document.querySelector<HTMLElement>('#country-map');
+  if (mapElement && window.L) {
+    const L = window.L;
+    type MapCity = {slug:string;title:string;center:[number,number]};
+    type MapCountry = {slug:string;title:string;flag:string;iso:string;geoName?:string;fallbackCenter?:[number,number];cities:MapCity[]};
+    const countries: MapCountry[] = JSON.parse(mapElement.dataset.countries || '[]');
+    const map = L.map(mapElement, { scrollWheelZoom: true, touchZoom: true, zoomControl: true, minZoom: 2 }).setView([43, 2], 3);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+    const byIso = new Map(countries.map((country) => [country.iso, country]));
+    const byName = new Map(countries.filter((country) => country.geoName).map((country) => [country.geoName, country]));
+    fetch(mapElement.dataset.boundaries || '').then((response) => response.json()).then((world) => {
+      const countryFor = (feature:any):MapCountry|undefined => byIso.get(feature.properties.iso_a3) || byName.get(feature.properties.name);
+      const selected = { ...world, features: world.features.filter((feature:any) => countryFor(feature)) };
+      const rendered = new Set<string>();
+      const shapes = L.geoJSON(selected, {
+        style: { className: 'atlas-country-shape', color: '#c9aebd', weight: 1.3, opacity: .9, fillColor: '#744761', fillOpacity: .42 },
+        onEachFeature: (feature:any, layer:any) => {
+          const country = countryFor(feature)!; rendered.add(country.slug);
+          const cityLabel = country.cities.length === 1 ? '1 qytet i rrjetit' : country.cities.length > 1 ? `${country.cities.length} qytete të rrjetit` : 'Guidë shteti';
+          layer.bindTooltip(`${country.flag} ${country.title}`, { sticky: true });
+          const countryAction = country.status === 'published' ? `<a href="/${country.slug}/">Hap shtetin <b>→</b></a>` : '<em>Guidë në përgatitje</em>';
+          layer.bindPopup(`<div class="map-popup"><small>${country.flag} Shtet</small><strong>${country.title}</strong><span>${cityLabel}</span>${countryAction}</div>`);
+          layer.on('click', () => map.flyToBounds(layer.getBounds(), { padding: [55, 55], maxZoom: 7, duration: .65 }));
+        },
+      }).addTo(map);
+      countries.filter((country) => !rendered.has(country.slug) && country.fallbackCenter).forEach((country) => {
+        const marker = L.circleMarker(country.fallbackCenter!, { radius: 9, color: '#c9aebd', weight: 2, fillColor: '#744761', fillOpacity: .72 });
+        const countryAction = country.status === 'published' ? `<a href="/${country.slug}/">Hap shtetin <b>→</b></a>` : '<em>Guidë në përgatitje</em>';
+        marker.bindPopup(`<div class="map-popup"><small>${country.flag} Shtet</small><strong>${country.title}</strong><span>Guidë shteti</span>${countryAction}</div>`).addTo(map);
+      });
+      countries.flatMap((country) => country.cities.map((city) => ({ ...city, country }))).forEach(({ country, ...city }) => {
+        const marker = L.circleMarker(city.center, { radius: 5.5, color: '#fff', weight: 2, fillColor: '#d8a74b', fillOpacity: 1 });
+        marker.bindTooltip(city.title, { direction: 'top', offset: [0, -6] });
+        const cityAction = city.status === 'published' ? `<a href="/${city.slug}/">Hap qytetin <b>→</b></a>` : '<em>Guidë në përgatitje</em>';
+        marker.bindPopup(`<div class="map-popup"><small>${country.flag} ${country.title}</small><strong>${city.title}</strong><span>Guidë qyteti</span>${cityAction}</div>`);
+        marker.addTo(map);
+      });
+      const homeBounds = shapes.getBounds();
+      map.fitBounds(homeBounds, { padding: [25, 25], maxZoom: 4 });
+      const ResetControl = L.Control.extend({
+        onAdd() {
+          const control = L.DomUtil.create('div', 'leaflet-bar leaflet-control atlas-reset-control');
+          const button = L.DomUtil.create('a', '', control);
+          button.href = '#'; button.title = 'Shiko të gjithë hartën'; button.setAttribute('aria-label', 'Zvogëlo dhe shiko të gjithë hartën'); button.textContent = '⤢';
+          L.DomEvent.disableClickPropagation(control);
+          L.DomEvent.on(button, 'click', (event:any) => { L.DomEvent.preventDefault(event); map.flyToBounds(homeBounds, { padding: [25, 25], maxZoom: 4, duration: .65 }); });
+          return control;
+        },
+      });
+      new ResetControl({ position: 'topleft' }).addTo(map);
+    });
+  }
+  const search=document.querySelector<HTMLInputElement>('#country-search'); const cards=[...document.querySelectorAll<HTMLElement>('[data-destination]')]; const empty=document.querySelector<HTMLElement>('#no-results')!; const result=document.querySelector<HTMLElement>('#catalogue-result'); const letterButtons=[...document.querySelectorAll<HTMLButtonElement>('[data-letter]')]; let activeLetter='';
+  function update(){const q=search?.value.trim().toLocaleLowerCase('sq')||'';let visible=0;cards.forEach(card=>{const show=(!q||card.dataset.name?.includes(q))&&(!activeLetter||card.dataset.letter===activeLetter);card.hidden=!show;if(show)visible++});empty.hidden=visible>0;if(result)result.textContent=`${visible} ${visible===1?'shtet':'shtete'}`}
+  search?.addEventListener('input',update);letterButtons.forEach(button=>button.addEventListener('click',()=>{activeLetter=button.dataset.letter||'';letterButtons.forEach(item=>item.classList.toggle('is-active',item===button));update()}));
 </script>

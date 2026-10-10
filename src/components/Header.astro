@@ -6,8 +6,9 @@
 import { atlasCountries } from '../data/atlas';
 
 const isHome = Astro.url.pathname === '/';
-const countries = atlasCountries.filter((c) => c.kind !== 'city');
-const cities = atlasCountries.filter((c) => c.kind === 'city');
+const countries = atlasCountries
+  .filter((country) => country.status === 'published')
+  .sort((a, b) => a.title.localeCompare(b.title, 'sq'));
 ---
 <header class="site-header">
   <div class="brand">
@@ -28,10 +29,6 @@ const cities = atlasCountries.filter((c) => c.kind === 'city');
       <ul class="dropdown-menu" id="vendet-menu">
         {countries.map((country) => (
           <li><a href={`/${country.slug}/`}>{country.flag} {country.title}</a></li>
-        ))}
-        <li role="separator" class="dropdown-divider"></li>
-        {cities.map((city) => (
-          <li><a href={`/${city.slug}/`}>{city.flag} {city.title}</a></li>
         ))}
       </ul>
     </div>

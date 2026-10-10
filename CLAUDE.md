@@ -10,16 +10,20 @@ to be deployed at `atlas.illyrianbrains.org` as a subdomain of the main
 `illyrianbrains.org` site. Split out of that main site's repo so Atlas content
 (images especially) doesn't bloat it. Content is in Albanian (`sq`).
 
-- `src/pages/index.astro` — country list; `src/pages/[slug].astro` — per-country guide
+- `src/pages/index.astro` — country catalogue and map; `src/pages/[slug].astro` —
+  shared country/city guide route
 - `src/components/Header.astro`, `Footer.astro` — adapted from the main site: every
   nav link other than Atlas itself is an absolute URL back to `illyrianbrains.org`,
   since this is a separate deploy on a different (sub)domain. The main site's
   cross-page search feature was dropped here (it depends on the main site's
   cities/members data, which doesn't exist in this repo).
 - `src/layouts/BaseLayout.astro` — shared `<head>`/shell, copied from the main site
-- `src/data/atlas.ts` — the list of countries (`AtlasCountry`)
-- `src/data/atlas/*.html`, `public/assets/atlas/` — HTML fragments and images migrated
-  from the community forum (see Content sync below)
+- `src/data/atlas.ts` — country records and the combined destination index
+- `src/data/cities.ts` — city records, parent country, map coordinates, and status
+- `src/data/atlas/*.html` — country guide content
+- `src/data/cities/*.html` — city guide content; see its README for the publishing flow
+- `src/data/templates/*.html` — copyable country and city editorial structures
+- `public/assets/atlas/` — guide images migrated from the community forum
 - `src/styles/*.css` — copied from the main site's stylesheets (duplicated on purpose;
   this repo builds and deploys independently)
 
@@ -28,10 +32,11 @@ thing to a correctness check — run it after non-trivial changes.
 
 ## Content sync
 
-`npm run atlas:sync` (Python + `beautifulsoup4`) re-fetches the country guides from
-`forum.illyrianbrains.org`'s IB Atlas category into `src/data/atlas/*.html`,
-downloading images into `public/assets/atlas/`. Doesn't run automatically — re-run by
-hand when the forum content changes, review the diff, then commit.
+`npm run atlas:sync` (Python + `beautifulsoup4`) re-fetches forum guides into
+`src/data/atlas/*.html`, downloading images into `public/assets/atlas/`. Curated city
+guides live separately in `src/data/cities/` and are skipped by the sync. It doesn't
+run automatically — re-run by hand when the forum content changes, review the diff,
+then commit.
 
 ## Working style
 

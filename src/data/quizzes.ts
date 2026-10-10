@@ -6,13 +6,13 @@ export interface QuizQuestion {
 }
 
 export interface CountryQuiz {
-  slug: string; // matches AtlasCountry.slug in ./atlas.ts
+  slug: string; // matches an AtlasDestination slug in ./atlas.ts
   questions: QuizQuestion[];
 }
 
 // First batch of integration quizzes — questions are grounded in the actual guide
-// content in src/data/atlas/<slug>.html, not invented, so keep them in sync if that
-// content changes (e.g. via atlas:sync). One quiz per country already in atlas.ts.
+// content in src/data/atlas/<slug>.html or src/data/cities/<slug>.html, so keep them
+// in sync when guide content changes.
 export const atlasQuizzes: CountryQuiz[] = [
   {
     slug: 'gjermani',

@@ -37,6 +37,10 @@ TOPICS = [
     (875, "oxford", "Oxford (Mbretëria e Bashkuar)"),
 ]
 
+# City guides are curated in src/data/cities/. Keep them out of the country
+# content directory when syncing forum topics.
+CURATED_SLUGS = {"trento", "oxford"}
+
 
 def resolve_url(url):
     if url.startswith("//"):
@@ -174,6 +178,9 @@ def clean_topic(topic_id, slug):
 def main():
     os.makedirs(DATA_ROOT, exist_ok=True)
     for topic_id, slug, _title in TOPICS:
+        if slug in CURATED_SLUGS:
+            print(f"{slug}: skipped (locally separated country/city content)")
+            continue
         try:
             clean_topic(topic_id, slug)
         except Exception as e:
