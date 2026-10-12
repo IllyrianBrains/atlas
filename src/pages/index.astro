@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { atlasCountries, atlasCountryGroups } from '../data/atlas';
 import { isNetworkCity } from '../data/network-cities';
+import { comparisonDataUpdatedAt, comparisonSourceYears, comparisonValues } from '../data/comparison-data';
 
 const featured = [
   { ...atlasCountries.find((c) => c.slug === 'gjermani')!, image: '/assets/atlas/gjermani/9b6b14586347fc070e33586566e14f81dae728df.jpeg', label: 'Punë · Dokumente · Jetë' },
@@ -39,7 +40,7 @@ const countryInitials = [...new Set(sortedCountryGroups.map((country) => country
 const totalCityCount = sortedCountryGroups.reduce((total, country) => total + country.cities.length, 0);
 const comparisonCountries = [
   ['CHE','Zvicër','🇨🇭'],['DEU','Gjermani','🇩🇪'],['AUT','Austri','🇦🇹'],['DNK','Danimarkë','🇩🇰'],['FIN','Finlandë','🇫🇮'],['SWE','Suedi','🇸🇪'],['NOR','Norvegji','🇳🇴'],['NLD','Holandë','🇳🇱'],['IRL','Irlandë','🇮🇪'],['LUX','Luksemburg','🇱🇺'],['BEL','Belgjikë','🇧🇪'],['FRA','Francë','🇫🇷'],['GBR','Mbretëri e Bashkuar','🇬🇧'],['ESP','Spanjë','🇪🇸'],['ITA','Itali','🇮🇹'],['MLT','Maltë','🇲🇹'],['CZE','Çeki','🇨🇿'],['POL','Poloni','🇵🇱'],['ALB','Shqipëri','🇦🇱'],['XKX','Kosovë','🇽🇰'],['USA','SHBA','🇺🇸'],
-].map(([code,name,flag])=>({code,name,flag}));
+].map(([code,name,flag])=>({code,name,flag,values:comparisonValues[code]}));
 ---
 <BaseLayout title="Atlas · Udhëzues për shqiptarët jashtë vendit" description="Udhëzues praktikë, të ndërtuar nga komuniteti shqiptar, për jetën dhe integrimin në vende të ndryshme." leaflet>
   <Header />
@@ -109,7 +110,7 @@ const comparisonCountries = [
           </aside>
           <div class="chart-panel"><div class="chart-legend" id="chart-legend" aria-live="polite"><span>Po ngarkohen shtetet…</span></div><div class="chart-stage"><svg id="radar-chart" viewBox="0 0 680 560" role="img" aria-labelledby="chart-title chart-desc"><title id="chart-title">Krahasimi i treguesve të jetesës</title><desc id="chart-desc">Grafik radar që krahason shtetet e zgjedhura në gjashtë tregues nga Banka Botërore.</desc></svg></div></div>
         </div>
-        <div class="index-note"><span>i</span><p><strong>Burimi: <a href="https://data.worldbank.org/" target="_blank" rel="noreferrer">World Bank Open Data ↗</a></strong> Jetëgjatësia, PBB për frymë me PPP, vrasjet, papunësia, ndotja PM2.5 dhe përdorimi i internetit merren drejtpërdrejt nga API. Vlerat normalizohen 0–100 brenda shteteve të Atlasit; për vrasjet, papunësinë dhe ndotjen, më pak është më mirë.</p></div>
+        <div class="index-note"><span>i</span><p><strong>Burimi: <a href="https://data.worldbank.org/" target="_blank" rel="noreferrer">World Bank Open Data ↗</a></strong> Jetëgjatësia, PBB për frymë me PPP, vrasjet, papunësia, ndotja PM2.5 dhe përdorimi i internetit ruhen lokalisht (vitet e burimit: {comparisonSourceYears.join(', ')}; përditësuar më {comparisonDataUpdatedAt}). Vlerat normalizohen 20–100 brenda shteteve të Atlasit; për vrasjet, papunësinë dhe ndotjen, më pak është më mirë.</p></div>
       </div>
     </section>
   </main>
@@ -195,7 +196,6 @@ const comparisonCountries = [
   const comparison=document.querySelector<HTMLElement>('#country-comparison');
   if(comparison){
     type ComparisonCountry={code:string;name:string;flag:string;values?:number[]};
-    type WorldBankRow={countryiso3code:string;value:number|null;date:string};
     const data:ComparisonCountry[]=JSON.parse(comparison.dataset.countries||'[]');
     const inputs=[...comparison.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
     const chart=document.querySelector<SVGSVGElement>('#radar-chart');
@@ -227,18 +227,9 @@ const comparisonCountries = [
       const plots=document.createElementNS(ns,'g');selected.forEach((country,index)=>{const shape=document.createElementNS(ns,'polygon');shape.setAttribute('points',country.values!.map((value,axis)=>point(axis,value)).join(' '));shape.setAttribute('fill',`${colors[index]}24`);shape.setAttribute('stroke',colors[index]);shape.setAttribute('stroke-width','2.5');shape.setAttribute('stroke-linejoin','round');plots.append(shape);country.values!.forEach((value,axis)=>{const position=point(axis,value).split(',');const dot=document.createElementNS(ns,'circle');dot.setAttribute('cx',position[0]);dot.setAttribute('cy',position[1]);dot.setAttribute('r','3.5');dot.setAttribute('fill',colors[index]);plots.append(dot)})});chart.append(plots);
       legend.replaceChildren(...selected.map((country,index)=>{const item=document.createElement('span');const swatch=document.createElement('i');swatch.style.background=colors[index];item.append(swatch,document.createTextNode(`${country.flag} ${country.name}`));return item}));
     };
-    const load=async()=>{
-      try{
-        inputs.forEach(input=>input.disabled=true);
-        const codes=data.map(country=>country.code).join(';');
-        const series=await Promise.all(metrics.map(async metric=>{const response=await fetch(`https://api.worldbank.org/v2/country/${codes}/indicator/${metric.code}?format=json&mrnev=1&per_page=100`);if(!response.ok)throw new Error('World Bank API');const payload=await response.json();return (payload?.[1]||[]) as WorldBankRow[]}));
-        metrics.forEach((metric,metricIndex)=>{const available=series[metricIndex].filter(row=>typeof row.value==='number');const values=available.map(row=>Number(row.value));const min=Math.min(...values),max=Math.max(...values);data.forEach(country=>{const raw=available.find(row=>row.countryiso3code===country.code)?.value;if(typeof raw!=='number'||!Number.isFinite(min)||max===min)return;(country.values??=Array(metrics.length).fill(NaN))[metricIndex]=Math.round(20+80*(metric.inverse?(max-raw)/(max-min):(raw-min)/(max-min)))})});
-        data.forEach(country=>{if(country.values?.some(value=>!Number.isFinite(value)))delete country.values});
-        inputs.forEach(input=>{const available=Boolean(data.find(country=>country.code===input.value)?.values);if(!available){input.checked=false;input.closest('label')?.setAttribute('title','Nuk ka ende të dhëna të plota për të gjashtë treguesit')}input.disabled=!available});
-        if(!inputs.some(input=>input.checked&&!input.disabled))inputs.filter(input=>!input.disabled).slice(0,3).forEach(input=>input.checked=true);
-        inputs.forEach(input=>input.addEventListener('change',()=>{if(inputs.filter(item=>item.checked).length===0){input.checked=true;return}draw()}));draw();
-      }catch(error){inputs.forEach(input=>input.disabled=true);if(help)help.textContent='Të dhënat nuk u ngarkuan. Provo sërish pas pak.';if(chart){const message=document.createElementNS(ns,'text');message.setAttribute('x','340');message.setAttribute('y','280');message.setAttribute('text-anchor','middle');message.setAttribute('fill','rgba(255,255,255,.62)');message.textContent='Grafiku përkohësisht i padisponueshëm';chart.append(message)}}
-    };
-    load();
+    inputs.forEach(input=>{const available=Boolean(data.find(country=>country.code===input.value)?.values);if(!available){input.checked=false;input.closest('label')?.setAttribute('title','Nuk ka ende të dhëna të plota për të gjashtë treguesit')}input.disabled=!available});
+    if(!inputs.some(input=>input.checked&&!input.disabled))inputs.filter(input=>!input.disabled).slice(0,3).forEach(input=>input.checked=true);
+    inputs.forEach(input=>input.addEventListener('change',()=>{if(inputs.filter(item=>item.checked).length===0){input.checked=true;return}draw()}));
+    draw();
   }
 </script>
