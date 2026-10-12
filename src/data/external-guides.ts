@@ -1,0 +1,152 @@
+export interface ExternalGuide { title: string; url: string; description: string; }
+
+const guideTuples: Record<string, [string, string, string][]> = {
+  zvicer: [
+    ['ch.ch', 'https://www.ch.ch/en/', 'shërbimet publike, puna, banimi dhe jeta e përditshme'],
+    ['Welcome to Switzerland', 'https://www.sem.admin.ch/sem/en/home/themen/integration/faq.html', 'orientim federal për të ardhurit dhe integrimin'],
+    ['Expatica Switzerland', 'https://www.expatica.com/ch/', 'guida praktike për banesën, punën dhe familjen'],
+    ['The Poor Swiss', 'https://thepoorswiss.com/', 'financat personale, sigurimet dhe kostoja e jetesës'],
+    ['Hello Switzerland', 'https://www.helloswitzerland.ch/', 'vendosja, puna dhe jeta lokale'],
+  ],
+  austri: [
+    ['oesterreich.gv.at', 'https://www.oesterreich.gv.at/en.html', 'procedurat dhe shërbimet publike'],
+    ['Migration Austria', 'https://www.migration.gv.at/en/', 'punësimi, lejet dhe jetesa në Austri'],
+    ['Expatica Austria', 'https://www.expatica.com/at/', 'banesa, puna dhe jeta familjare'],
+    ['Vienna — Living and Working', 'https://www.wien.gv.at/english/living-working/', 'udhëzime për banorët e rinj në Vjenë'],
+    ['WORK in AUSTRIA', 'https://www.workinaustria.com/en/', 'karriera, zhvendosja dhe jeta profesionale'],
+  ],
+  france: [
+    ['Welcome to France', 'https://www.welcometofrance.com/en', 'guida shtetërore për talentet dhe familjet ndërkombëtare'],
+    ['Service-Public.fr', 'https://www.service-public.fr/particuliers/vosdroits?lang=en', 'procedurat dhe të drejtat administrative'],
+    ['Expatica France', 'https://www.expatica.com/fr/', 'banesa, puna, shëndetësia dhe arsimi'],
+    ['The Local France', 'https://www.thelocal.fr/', 'shpjegime praktike dhe lajme për të huajt'],
+    ['Campus France', 'https://www.campusfrance.org/en', 'studimet, vizat studentore dhe jeta universitare'],
+  ],
+  finlande: [
+    ['InfoFinland', 'https://www.infofinland.fi/en', 'guida shumëgjuhëshe për punën dhe jetën në Finlandë'],
+    ['Suomi.fi', 'https://www.suomi.fi/citizen', 'shërbimet publike dhe situatat kryesore të jetës'],
+    ['Work in Finland', 'https://www.workinfinland.com/en/', 'karriera, zhvendosja dhe tregu i punës'],
+    ['Expat Finland', 'https://www.expat-finland.com/', 'udhëzime praktike për të ardhurit'],
+    ['Study in Finland', 'https://www.studyinfinland.fi/', 'programet, aplikimet dhe jeta studentore'],
+  ],
+  suedi: [
+    ['Informationsverige.se', 'https://www.informationsverige.se/en/', 'orientim zyrtar për të ardhurit në Suedi'],
+    ['Sweden.se — Moving to Sweden', 'https://sweden.se/work-business/moving-to-sweden', 'hapat kryesorë para dhe pas zhvendosjes'],
+    ['Working in Sweden', 'https://sweden.se/work-business/working-in-sweden', 'kultura e punës dhe tregu suedez'],
+    ['The Local Sweden', 'https://www.thelocal.se/', 'lajme dhe shpjegime praktike në anglisht'],
+    ['Study in Sweden', 'https://studyinsweden.se/', 'studimet dhe jeta studentore'],
+  ],
+  malte: [
+    ['Living and Working in Malta', 'https://www.gov.mt/en/Life%20Events/Pages/Moving%20to%20Malta/Living-and-Working-in-Malta.aspx', 'udhëzime shtetërore për zhvendosjen'],
+    ['Identità Malta', 'https://identita.gov.mt/', 'qëndrimi, dokumentet dhe emigracioni'],
+    ['Jobsplus', 'https://jobsplus.gov.mt/', 'punësimi dhe shërbimet e karrierës'],
+    ['Expat.com Malta', 'https://www.expat.com/en/guide/europe/malta/', 'guida komunitare për jetën dhe vendosjen'],
+    ['Visit Malta', 'https://www.visitmalta.com/en/', 'transporti, destinacionet dhe informacioni lokal'],
+  ],
+  itali: [
+    ['Integrazione Migranti', 'https://integrazionemigranti.gov.it/en-gb', 'migracioni dhe integrimi'],
+    ['EU Immigration Portal — Italy', 'https://immigration-portal.ec.europa.eu/italy_en', 'rrugët e qëndrimit, punës dhe studimit'],
+    ['Expatica Italy', 'https://www.expatica.com/it/', 'banesa, puna, financat dhe jeta familjare'],
+    ['The Local Italy', 'https://www.thelocal.it/', 'lajme dhe shpjegime praktike për të huajt'],
+    ['Universitaly', 'https://www.universitaly.it/', 'universitetet, programet dhe procedurat studentore'],
+  ],
+  'mbreteria-e-bashkuar': [
+    ['GOV.UK — Visas and Immigration', 'https://www.gov.uk/browse/visas-immigration', 'vizat, lejet dhe statusi i emigracionit'],
+    ['Citizens Advice', 'https://www.citizensadvice.org.uk/', 'të drejtat, puna, banesa dhe përfitimet'],
+    ['MoneyHelper', 'https://www.moneyhelper.org.uk/en', 'udhëzime falas për financat dhe pensionet'],
+    ['UKCISA', 'https://www.ukcisa.org.uk/', 'informacion për studentët ndërkombëtarë'],
+    ['NHS — Services', 'https://www.nhs.uk/nhs-services/', 'përdorimi i shërbimeve shëndetësore'],
+  ],
+  danimarke: [
+    ['Life in Denmark', 'https://lifeindenmark.borger.dk/', 'guida zyrtare për banorët ndërkombëtarë'],
+    ['New to Denmark', 'https://www.nyidanmark.dk/en-GB', 'vizat, lejet dhe rregullat e qëndrimit'],
+    ['Work in Denmark', 'https://www.workindenmark.dk/', 'punësimi dhe karriera'],
+    ['International House Copenhagen', 'https://ihcph.kk.dk/', 'regjistrimi dhe vendosja në Kopenhagë'],
+    ['Study in Denmark', 'https://studyindenmark.dk/', 'studimet dhe jeta studentore'],
+  ],
+  poloni: [
+    ['Office for Foreigners', 'https://www.gov.pl/web/udsc-en', 'qëndrimi dhe procedurat për të huajt'],
+    ['EURES Poland', 'https://eures.praca.gov.pl/en/looking-for-a-job-in-eu/you-are-an-eu-or-efta-citizen/living-and-working-conditions-in-poland', 'puna dhe kushtet e jetesës'],
+    ['Expat.com Poland', 'https://www.expat.com/en/guide/europe/poland/', 'guida komunitare për zhvendosjen'],
+    ['Study in Poland', 'https://study.gov.pl/', 'programet dhe informacioni për studentët'],
+    ['Welcome to Krakow', 'https://otwarty.krakow.pl/english', 'shërbime dhe orientim lokal për të huajt'],
+  ],
+  norvegji: [
+    ['New in Norway', 'https://www.nyinorge.no/en/', 'guida publike për hapat e parë në Norvegji'],
+    ['UDI', 'https://www.udi.no/en/', 'vizat, lejet dhe shtetësia'],
+    ['Work in Norway', 'https://www.nav.no/en/home/work-and-stay-in-norway/work-in-norway', 'punësimi dhe shërbimet e NAV'],
+    ['Life in Norway', 'https://www.lifeinnorway.net/', 'guida praktike dhe kultura norvegjeze'],
+    ['Study in Norway', 'https://studyinnorway.no/', 'studimet dhe arsimi i lartë'],
+  ],
+  ceki: [
+    ['Foreigners — Ministry of the Interior', 'https://frs.gov.cz/en/', 'qëndrimi dhe procedurat e emigracionit'],
+    ['Expats.cz', 'https://www.expats.cz/', 'guida, lajme dhe shërbime praktike'],
+    ['Prague for All', 'https://metropolevsech.eu/en/', 'orientim dhe integrim në Pragë'],
+    ['Study in Czechia', 'https://www.studyin.cz/', 'studimet dhe jeta studentore'],
+    ['Expat Centre Prague', 'https://expat.praha.eu/', 'mbështetje për profesionistët ndërkombëtarë'],
+  ],
+  holande: [
+    ['Government.nl — Immigration', 'https://www.government.nl/topics/immigration-to-the-netherlands', 'rregullat zyrtare për ardhjen dhe qëndrimin'],
+    ['I amsterdam — Living', 'https://www.iamsterdam.com/en/live-work-study/living', 'banesa, administrata dhe jeta në Amsterdam'],
+    ['Expatica Netherlands', 'https://www.expatica.com/nl/', 'puna, banesa dhe familja'],
+    ['Iamexpat Netherlands', 'https://www.iamexpat.nl/', 'lajme, shërbime dhe këshilla'],
+    ['Study in NL', 'https://www.studyinnl.org/', 'studimet dhe programet ndërkombëtare'],
+  ],
+  belgjike: [
+    ['Coming to Belgium', 'https://www.belgium.be/en/family/international/coming_to_belgium', 'informacion federal për ardhjen dhe qëndrimin'],
+    ['Commissioner Brussels Expat', 'https://www.commissioner.brussels/', 'vendosja dhe administrata në Bruksel'],
+    ['Expatica Belgium', 'https://www.expatica.com/be/', 'puna, banesa, financat dhe familja'],
+    ['The Bulletin', 'https://www.thebulletin.be/', 'lajme dhe jetë praktike për ndërkombëtarët'],
+    ['Study in Flanders', 'https://www.studyinflanders.be/', 'studimet në Flandër e Bruksel'],
+  ],
+  irlande: [
+    ['Citizens Information', 'https://www.citizensinformation.ie/en/moving-country/', 'guida publike për ardhjen dhe jetën në Irlandë'],
+    ['Irish Immigration Service', 'https://www.irishimmigration.ie/', 'vizat, regjistrimi dhe lejet'],
+    ['Crosscare Migrant Project', 'https://www.migrantproject.ie/', 'informacion dhe mbështetje për migrantët'],
+    ['Dublin.ie — Live', 'https://dublin.ie/live/', 'banesa, transporti, puna dhe jeta në Dublin'],
+    ['Education in Ireland', 'https://www.educationinireland.com/', 'studimet dhe jeta studentore'],
+  ],
+  luksemburg: [
+    ['Guichet.lu', 'https://guichet.public.lu/en/citoyens.html', 'procedurat administrative, puna dhe familja'],
+    ['Just Arrived Luxembourg', 'https://www.justarrived.lu/en/', 'vendosja dhe jeta lokale'],
+    ['Luxembourg Times — Expat Hub', 'https://www.luxtimes.lu/expat-hub', 'shpjegime dhe lajme për ndërkombëtarët'],
+    ['ADEM', 'https://adem.public.lu/en.html', 'punësimi dhe zhvillimi profesional'],
+    ['Study in Luxembourg', 'https://mengstudien.public.lu/en.html', 'orientim për arsimin e lartë'],
+  ],
+  spanje: [
+    ['EU Immigration Portal — Spain', 'https://immigration-portal.ec.europa.eu/spain_en', 'qëndrimi, puna dhe studimi'],
+    ['Administracion.gob.es', 'https://administracion.gob.es/pag_Home/en/index.html', 'shërbimet dhe procedurat publike'],
+    ['Expatica Spain', 'https://www.expatica.com/es/', 'banesa, puna, shëndetësia dhe financat'],
+    ['Spain Expat', 'https://www.spainexpat.com/', 'guida praktike për jetën e përditshme'],
+    ['Study in Spain', 'https://www.studyinspain.info/en/', 'studimet dhe destinacionet universitare'],
+  ],
+  shqiperi: [
+    ['e-Albania', 'https://e-albania.al/', 'shërbimet publike online dhe dokumentet'],
+    ['Visit Tirana', 'https://www.visit-tirana.com/', 'transporti, lagjet dhe jeta në kryeqytet'],
+    ['Albania.al', 'https://albania.al/', 'destinacionet, kultura dhe udhëtimi'],
+    ['Expat.com Albania', 'https://www.expat.com/en/guide/europe/albania/', 'guida komunitare për jetën dhe zhvendosjen'],
+    ['Invest in Albania', 'https://invest-in-albania.org/', 'biznesi, puna dhe mjedisi ekonomik'],
+  ],
+  kosove: [
+    ['eKosova', 'https://ekosova.rks-gov.net/', 'shërbimet publike dhe aplikimet online'],
+    ['Ministria e Punëve të Jashtme', 'https://mfa-ks.net/en/', 'informacion konsullor dhe për hyrjen në vend'],
+    ['Kosovo Guide', 'https://www.kosovoguide.com/', 'qytetet, kultura dhe jeta lokale'],
+    ['Visit Prishtina', 'https://visit-prishtina.com/', 'orientim, kulturë dhe shërbime në kryeqytet'],
+    ['Kosovo 2.0', 'https://kosovotwopointzero.com/en/', 'shoqëria, kultura dhe zhvillimet vendore'],
+  ],
+  shba: [
+    ['USA.gov — Immigration and Citizenship', 'https://www.usa.gov/immigration-and-citizenship', 'udhëzime federale për emigracionin'],
+    ['USCIS — Settling in the U.S.', 'https://www.uscis.gov/citizenship/civic-integration/settling-in-the-us', 'jeta dhe përgjegjësitë e banorëve të rinj'],
+    ['Welcome.US', 'https://welcome.us/', 'burime dhe mbështetje për të ardhurit'],
+    ['Consumer.gov', 'https://consumer.gov/', 'para, kredi, mashtrime dhe të drejta'],
+    ['211', 'https://www.211.org/', 'shërbime sociale dhe ndihmë lokale'],
+  ],
+};
+
+// Tuples keep the catalog compact; consumers receive descriptive named fields.
+export const externalGuidesByCountry: Record<string, ExternalGuide[]> = Object.fromEntries(
+  Object.entries(guideTuples).map(([slug, guides]) => [
+    slug,
+    guides.map(([title, url, description]) => ({ title, url, description })),
+  ]),
+);

@@ -1,0 +1,121 @@
+/* Mobile hardening, loaded after the shared visual and reading styles. */
+html { -webkit-text-size-adjust: 100%; }
+body { min-width: 0; }
+:is(main, section, article, aside, header, footer, nav, div) { min-width: 0; }
+:is(button, a, input, select, summary) { -webkit-tap-highlight-color: rgba(116, 71, 97, .18); }
+button, [role="button"], summary, a { touch-action: manipulation; }
+iframe, video, canvas, svg { max-width: 100%; }
+pre, code { overflow-wrap: normal; }
+
+@media (max-width: 900px) {
+  body.menu-open { overflow: hidden; }
+  .site-header { padding-inline: max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-right)); }
+  .nav-toggle { position: relative; flex: 0 0 44px; width: 44px; height: 44px; padding: 10px 7px; }
+  .nav-toggle span { transition: transform .18s ease, opacity .18s ease; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .nav { overscroll-behavior: contain; padding-bottom: max(22px, env(safe-area-inset-bottom)); }
+  .nav > a:not(.nav-cta), .dropdown-toggle, .dropdown-menu a { min-height: 48px; }
+  .dropdown-toggle { display: flex; align-items: center; justify-content: space-between; }
+  .dropdown-toggle::before { content: '+'; order: 2; font-size: 20px; font-weight: 400; }
+  .nav-item.dropdown.open .dropdown-toggle::before { content: '\2212'; }
+
+  .atlas-hero-grid, .games-hero-inner, .country-hero-grid { gap: 40px !important; }
+  .hero-steps, .home-strip-inner, .visit-guide-nav { overscroll-behavior-inline: contain; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+  .hero-steps > *, .home-strip-inner > *, .visit-guide-nav > * { scroll-snap-align: start; }
+  .compare-shell, .quiz, .play-card, .speed-card { max-width: 100%; }
+}
+
+@media (max-width: 600px) {
+  :root { --mobile-gutter: 16px; }
+  .site-header { padding-inline: max(var(--mobile-gutter), env(safe-area-inset-left)) max(var(--mobile-gutter), env(safe-area-inset-right)); }
+  .brand { min-width: 0; gap: 8px; }
+  .brand-main { min-width: 0; }
+  .brand img { width: clamp(112px, 37vw, 145px); }
+  .brand-project { flex: 0 0 auto; }
+  .container { width: min(calc(100% - (var(--mobile-gutter) * 2)), var(--max)); }
+  .section { padding-block: clamp(56px, 16vw, 72px); }
+
+  h1, h2, h3, p, li, a, strong, span { overflow-wrap: break-word; }
+  input, select, textarea, button { font-size: max(16px, 1em); }
+  :is(.button, .nav-cta, .play-button, .quiz-next, .answer-row button, .result button, .flag-option) { min-height: 48px; }
+
+  .atlas-hero, .games-hero { padding-block: clamp(52px, 15vw, 76px) !important; }
+  .atlas-hero h1, .games-hero h1 { font-size: clamp(42px, 13vw, 62px) !important; line-height: .98 !important; }
+  .hero-kicker { flex-wrap: wrap; }
+  .hero-steps { margin-inline: calc(var(--mobile-gutter) * -1); padding-inline: var(--mobile-gutter); }
+  .hero-steps::-webkit-scrollbar, .home-strip-inner::-webkit-scrollbar { display: none; }
+
+  .home-heading h2, .compare-heading h2, .games-section-head h2 { font-size: clamp(34px, 10.5vw, 44px) !important; }
+  .featured-card, .game-feature { min-height: 270px !important; }
+  .directory-filters { display: flex; flex-wrap: nowrap; max-width: 100%; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .directory-filters button { flex: 0 0 auto; min-height: 44px; }
+  .destination-card, .destination-group .destination-card { grid-template-columns: 24px 36px minmax(0, 1fr) auto !important; }
+  .destination-group .destination-card .destination-arrow { display: none; }
+  .city-list { overflow-wrap: anywhere; }
+
+  .compare-controls { padding: 16px !important; }
+  .country-choices { max-height: 300px !important; }
+  .country-choices label { min-height: 44px; }
+  .chart-panel { overflow: hidden; }
+  .chart-stage { min-width: 0; }
+  .chart-legend { max-height: 132px; overflow-y: auto; }
+
+  .country-hero { padding-block: 44px !important; }
+  .priority-card { width: 100%; }
+  .country-map-section { padding-inline: var(--mobile-gutter) !important; }
+  .guide-country-map, .country-map { min-height: 360px !important; height: min(60svh, 430px) !important; }
+  .country-map-legend { flex-wrap: wrap; gap: 10px 18px; }
+  .guide-section .atlas-content,
+  .country-story .atlas-content {
+    width: min(calc(100% - 48px), 760px) !important;
+    margin-inline: auto !important;
+  }
+  .atlas-content :is(p, li, blockquote, details, h1, h2, h3, h4) { max-width: 100%; }
+  .atlas-content :is(table, pre) { max-width: 100%; }
+  .atlas-content .table-scroll {
+    width: 100% !important;
+    overscroll-behavior-inline: contain;
+  }
+
+  .games-stats { width: 100%; max-width: none !important; }
+  .games-stats div { min-width: 0; }
+  .games-stats span { overflow-wrap: anywhere; }
+  .country-game-card { grid-template-columns: 24px 34px minmax(0, 1fr) 20px !important; }
+  .country-game-copy small { white-space: normal; }
+
+  .play-shell, .speed-shell { min-height: calc(100svh - 72px) !important; padding-block: 28px 56px !important; }
+  .play-card, .speed-card { padding: 20px 16px !important; border-radius: 16px !important; }
+  .play-top, .speed-card header { gap: 12px; }
+  .play-top h1, .speed-card h1 { font-size: clamp(32px, 10vw, 42px) !important; }
+  .timer { width: 58px !important; height: 58px !important; font-size: 24px !important; }
+  .score-pill { flex: 0 0 auto; }
+  .flag-options { gap: 8px !important; }
+  .flag-option { min-height: 84px !important; }
+  .statement { min-height: 130px !important; margin-block: 28px 22px !important; }
+
+  .quiz-hero h1 { overflow-wrap: anywhere; }
+  .quiz-live-score { flex-wrap: wrap; }
+  .quiz-option { min-height: 52px; }
+  .quiz-result-actions > * { width: 100%; }
+
+  .about-page { font-size: 16px; }
+  .about-page .city-page h1 { font-size: clamp(38px, 12vw, 50px); }
+  .about-page .about-body, .about-page .info-body p, .about-page .info-body ul { font-size: 16px; line-height: 1.72; }
+  .about-page .info-item summary { min-height: 56px; padding-block: 16px; font-size: 17px; }
+
+  .footer { padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 380px) {
+  .brand img { width: 112px; }
+  .brand-project { font-size: 12px; letter-spacing: .08em; }
+  .destination-card, .destination-group .destination-card { grid-template-columns: 22px 30px minmax(0, 1fr) !important; }
+  .destination-count, .destination-arrow { display: none; }
+  .games-stats { grid-template-columns: 1fr; }
+  .games-stats div + div { border-top: 1px solid rgba(255,255,255,.12); }
+  .play-top { align-items: flex-start; flex-direction: column; }
+  .guide-section .atlas-content,
+  .country-story .atlas-content { width: min(calc(100% - 40px), 760px) !important; }
+}

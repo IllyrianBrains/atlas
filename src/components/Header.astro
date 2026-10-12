@@ -42,6 +42,21 @@ const countries = atlasCountries
   .brand-project { display: flex; align-items: center; min-height: 27px; padding-left: 13px; border-left: 1px solid rgba(255,255,255,.3); color: #ead6e1; font-family: var(--font-display); font-size: 17px; font-weight: 500; line-height: 1; letter-spacing: .12em; text-transform: uppercase; transition: color .2s ease; }
   .brand-project:hover { color: #fff; }
   .dropdown-divider { margin: 6px 4px; border-top: 1px solid rgba(255,255,255,.12); }
+  #vendet-menu {
+    max-height: min(68vh, 480px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201,174,189,.68) rgba(255,255,255,.06);
+    -webkit-overflow-scrolling: touch;
+  }
+  #vendet-menu::-webkit-scrollbar { width: 7px; }
+  #vendet-menu::-webkit-scrollbar-track { margin-block: 8px; background: rgba(255,255,255,.06); border-radius: 999px; }
+  #vendet-menu::-webkit-scrollbar-thumb { border: 2px solid #1c1d22; border-radius: 999px; background: #c9aebd; }
+  #vendet-menu li { scroll-margin-block: 8px; }
+  @media (max-width: 900px) {
+    #vendet-menu { max-height: min(48svh, 420px); padding-right: 10px; }
+  }
   @media (max-width: 600px) {
     .brand { gap: 9px; }
     .brand-project { min-height: 23px; padding-left: 9px; font-size: 13px; letter-spacing: .1em; }
@@ -56,12 +71,14 @@ const countries = atlasCountries
   toggle?.addEventListener('click', () => {
     const isOpen = nav?.classList.toggle('nav-open') ?? false;
     toggle.setAttribute('aria-expanded', String(isOpen));
+    document.body.classList.toggle('menu-open', isOpen);
   });
 
   nav?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => {
       nav.classList.remove('nav-open');
       toggle?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
     });
   });
 
@@ -83,9 +100,31 @@ const countries = atlasCountries
     });
   });
 
-  document.addEventListener('click', () => closeDropdowns());
+  document.addEventListener('click', (event) => {
+    closeDropdowns();
+    if (window.innerWidth <= 900 && !nav?.contains(event.target as Node) && !toggle?.contains(event.target as Node)) {
+      nav?.classList.remove('nav-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+    }
+  });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeDropdowns();
+    if (event.key === 'Escape') {
+      closeDropdowns();
+      nav?.classList.remove('nav-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+      toggle?.focus();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) {
+      nav?.classList.remove('nav-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+      closeDropdowns();
+    }
   });
 </script>

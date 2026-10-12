@@ -3,6 +3,7 @@ import '../styles/global.css';
 import '../styles/accents.css';
 import '../styles/about.css';
 import '../styles/readability.css';
+import '../styles/mobile.css';
 const { title = 'Illyrian Brains Network', description = 'Rrjeti i Illyrian Brains që bashkon profesionistët shqiptarë kudo ndodhen — me evente miqësore dhe diskutime të frytshme.', leaflet = false } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -10,7 +11,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <html lang="sq">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content={description} />
     <link rel="icon" type="image/png" href="/assets/fv.png" />
     <link rel="canonical" href={canonicalURL} />
